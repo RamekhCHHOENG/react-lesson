@@ -4,6 +4,11 @@ import { projectStorage } from "@/services/projectStorage"
 import { formatDate } from "@/lib/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import type { Task, TaskStatus } from "@/types/project"
 import {
   CheckSquare,
@@ -34,70 +39,74 @@ function TaskRow({
   onStatusChange: (task: BacklogTask, status: TaskStatus) => void
 }) {
   return (
-    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-2.5 border-b border-[#DFE1E6] hover:bg-[#FAFBFC] transition-colors group items-center">
+    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-2.5 border-b hover:bg-accent/50 transition-colors group items-center">
       <div className="flex items-center justify-center">
-        <GripVertical className="h-3.5 w-3.5 text-[#C1C7D0] opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
       </div>
       <div className="min-w-0">
-        <span className="text-sm font-medium text-[#172B4D] truncate block">
+        <span className="text-sm font-medium text-foreground truncate block">
           {task.title}
         </span>
         {task.description && (
-          <p className="text-xs text-[#6B778C] truncate mt-0.5">{task.description}</p>
+          <p className="text-xs text-muted-foreground truncate mt-0.5">{task.description}</p>
         )}
       </div>
       <div>
-        <span className="text-xs text-[#6B778C] bg-[#F4F5F7] rounded px-2 py-1 truncate block text-center">
+        <Badge variant="secondary" className="text-xs truncate block text-center">
           {task.projectName}
-        </span>
+        </Badge>
       </div>
       <div>
-        <select
+        <Select
           value={task.status}
           onChange={(e) => onStatusChange(task, e.target.value as TaskStatus)}
-          className="text-[10px] font-semibold uppercase rounded px-1.5 py-0.5 border-0 cursor-pointer bg-transparent focus:ring-1 focus:ring-[#4C9AFF] outline-none w-full"
+          className="text-[10px] font-semibold uppercase h-6 px-1.5 py-0.5 w-full"
         >
           <option value="todo">TO DO</option>
           <option value="in-progress">IN PROGRESS</option>
           <option value="review">IN REVIEW</option>
           <option value="done">DONE</option>
-        </select>
+        </Select>
       </div>
       <div>
         {task.assignee ? (
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#00875A] text-white text-[9px] font-bold shrink-0">
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold shrink-0">
               {task.assignee.charAt(0).toUpperCase()}
             </div>
-            <span className="text-xs text-[#42526E] truncate">{task.assignee}</span>
+            <span className="text-xs text-muted-foreground truncate">{task.assignee}</span>
           </div>
         ) : (
-          <span className="text-xs text-[#A5ADBA]">Unassigned</span>
+          <span className="text-xs text-muted-foreground/60">Unassigned</span>
         )}
       </div>
       <div>
         {task.dueDate ? (
-          <span className="flex items-center gap-1 text-xs text-[#42526E]">
-            <Calendar className="h-3 w-3 text-[#6B778C]" />
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3 text-muted-foreground" />
             {formatDate(task.dueDate, "short")}
           </span>
         ) : (
-          <span className="text-xs text-[#A5ADBA]">—</span>
+          <span className="text-xs text-muted-foreground/60">—</span>
         )}
       </div>
       <div className="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
           onClick={() => onEdit(task)}
-          className="flex items-center justify-center h-6 w-6 rounded hover:bg-[#EBECF0] text-[#6B778C] transition-colors"
         >
           <Pencil className="h-3 w-3" />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-destructive"
           onClick={() => onDelete(task)}
-          className="flex items-center justify-center h-6 w-6 rounded hover:bg-[#FFEBE6] text-[#6B778C] hover:text-[#DE350B] transition-colors"
         >
           <Trash2 className="h-3 w-3" />
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -178,26 +187,26 @@ export default function BacklogPage() {
   const backlogCount = allTasks.filter((t) => t.status === "todo").length
 
   return (
-    <div className="h-full flex flex-col bg-[#FAFBFC]">
-
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-[#DFE1E6] shrink-0">
+      <div className="bg-card border-b shrink-0">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-[#42526E] to-[#6B778C]">
-                <CheckSquare className="h-4 w-4 text-white" />
+              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-secondary to-muted-foreground">
+                <CheckSquare className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-[#172B4D]">Backlog</h1>
-                <p className="text-sm text-[#6B778C] mt-0.5">
+                <h1 className="text-xl font-semibold text-foreground">Backlog</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {backlogCount} issue{backlogCount !== 1 ? "s" : ""} in backlog &middot;{" "}
                   {allTasks.length} total
                 </p>
               </div>
             </div>
             {state.projects.length > 0 && (
-              <button
+              <Button
+                size="sm"
                 onClick={() => {
                   const targetProject = selectedProjectId !== "all"
                     ? selectedProjectId
@@ -208,40 +217,38 @@ export default function BacklogPage() {
                     setTaskDialogOpen(true)
                   }
                 }}
-                className="flex items-center gap-1.5 h-8 px-3 rounded bg-[#0052CC] hover:bg-[#0065FF] text-white text-sm font-medium transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Create issue
-              </button>
+              </Button>
             )}
           </div>
 
-          {/* Filters */}
           <div className="flex items-center gap-3 mt-4">
-            <div className="flex items-center gap-2 rounded px-2.5 h-8 border border-[#DFE1E6] bg-white focus-within:border-[#4C9AFF] w-[240px]">
-              <Search className="h-3.5 w-3.5 text-[#6B778C] shrink-0" />
-              <input
-                className="bg-transparent border-0 outline-none text-sm text-[#172B4D] placeholder:text-[#6B778C] w-full"
+            <div className="relative w-[240px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                className="pl-8 h-8 text-sm"
                 placeholder="Search issues..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <select
+            <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "all")}
-              className="h-8 px-3 rounded border border-[#DFE1E6] bg-white text-sm text-[#172B4D] focus:border-[#4C9AFF] outline-none"
+              className="h-8 w-auto text-sm"
             >
               <option value="all">All statuses</option>
               <option value="todo">To Do</option>
               <option value="in-progress">In Progress</option>
               <option value="review">In Review</option>
               <option value="done">Done</option>
-            </select>
-            <select
+            </Select>
+            <Select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="h-8 px-3 rounded border border-[#DFE1E6] bg-white text-sm text-[#172B4D] focus:border-[#4C9AFF] outline-none"
+              className="h-8 w-auto text-sm"
             >
               <option value="all">All projects</option>
               {state.projects.map((p) => (
@@ -249,7 +256,7 @@ export default function BacklogPage() {
                   {p.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         </div>
       </div>
@@ -258,25 +265,25 @@ export default function BacklogPage() {
       <div className="flex-1 overflow-auto p-6">
         {allTasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <CheckSquare className="h-12 w-12 text-[#DFE1E6] mb-4" />
-            <h3 className="text-base font-medium text-[#172B4D]">Backlog is empty</h3>
-            <p className="text-sm text-[#6B778C] mt-1">
+            <CheckSquare className="h-12 w-12 text-muted-foreground/40 mb-4" />
+            <h3 className="text-base font-medium text-foreground">Backlog is empty</h3>
+            <p className="text-sm text-muted-foreground mt-1">
               Create issues in your projects to see them here.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedTasks).map(([key, group]) => (
-              <div key={key} className="bg-white rounded border border-[#DFE1E6] overflow-hidden">
+              <Card key={key} className="overflow-hidden">
                 {/* Group header */}
                 <button
                   onClick={() => toggleSection(key)}
-                  className="flex items-center gap-2 w-full px-4 py-2.5 bg-[#FAFBFC] border-b border-[#DFE1E6] hover:bg-[#F4F5F7] transition-colors"
+                  className="flex items-center gap-2 w-full px-4 py-2.5 bg-muted/50 border-b hover:bg-muted transition-colors"
                 >
                   {expandedSections[key] ? (
-                    <ChevronDown className="h-4 w-4 text-[#6B778C]" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 text-[#6B778C]" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span
                     className="text-[11px] font-bold uppercase tracking-wider"
@@ -284,16 +291,16 @@ export default function BacklogPage() {
                   >
                     {group.label}
                   </span>
-                  <span className="flex items-center justify-center min-w-[20px] h-5 rounded-full bg-[#DFE1E6] text-[10px] font-bold text-[#42526E] px-1.5">
+                  <Badge variant="secondary" className="text-[10px] font-bold px-1.5 py-0">
                     {group.tasks.length}
-                  </span>
+                  </Badge>
                 </button>
 
                 {/* Tasks */}
                 {expandedSections[key] && (
                   <div>
                     {/* Column headers */}
-                    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-1.5 bg-[#FAFBFC] border-b border-[#DFE1E6] text-[10px] font-semibold text-[#6B778C] uppercase tracking-wider">
+                    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-1.5 bg-muted/30 border-b text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                       <span />
                       <span>Issue</span>
                       <span>Project</span>
@@ -303,7 +310,7 @@ export default function BacklogPage() {
                       <span className="text-right">Actions</span>
                     </div>
                     {group.tasks.length === 0 ? (
-                      <div className="flex items-center justify-center py-6 text-xs text-[#A5ADBA]">
+                      <div className="flex items-center justify-center py-6 text-xs text-muted-foreground/60">
                         No issues
                       </div>
                     ) : (
@@ -322,7 +329,7 @@ export default function BacklogPage() {
                     )}
                   </div>
                 )}
-              </div>
+              </Card>
             ))}
           </div>
         )}

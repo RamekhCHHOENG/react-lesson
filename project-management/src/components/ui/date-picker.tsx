@@ -44,17 +44,17 @@ export function DatePicker({
           id={id}
           type="button"
           className={cn(
-            "flex h-9 w-full items-center justify-between rounded border border-[#DFE1E6] bg-[#FAFBFC] px-3 py-1 text-sm text-[#172B4D]",
-            "hover:bg-[#F4F5F7] transition-all outline-none",
-            "focus:border-[#4C9AFF] focus:bg-white focus:shadow-[0_0_0_1px_#4C9AFF]",
-            !selected && "text-[#A5ADBA]",
+            "flex h-9 w-full items-center justify-between rounded border border-input bg-background px-3 py-1 text-sm text-foreground",
+            "hover:bg-accent/50 transition-all outline-none",
+            "focus:border-ring focus:bg-background focus:shadow-[0_0_0_1px_var(--color-ring)]",
+            !selected && "text-muted-foreground",
             className
           )}
         >
           <span className="truncate">
             {selected ? format(selected, "MMM dd, yyyy") : placeholder}
           </span>
-          <CalendarIcon className="h-4 w-4 text-[#6B778C] shrink-0 ml-2" />
+          <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0 ml-2" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -66,14 +66,14 @@ export function DatePicker({
           required={required}
         />
         {selected && (
-          <div className="border-t border-[#DFE1E6] px-3 py-2">
+          <div className="border-t px-3 py-2">
             <button
               type="button"
               onClick={() => {
                 onChange?.("")
                 setOpen(false)
               }}
-              className="text-xs text-[#DE350B] hover:underline font-medium"
+              className="text-xs text-destructive hover:underline font-medium"
             >
               Clear date
             </button>

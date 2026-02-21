@@ -44,7 +44,7 @@ function AppShell() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FAFBFC]">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar activeItem={activePage} onItemClick={(item) => setActivePage(item as Page)} />
       <div className="flex flex-col flex-1 min-w-0">
         <TopNav activePage={activePage} onCreateProject={handleCreate} />

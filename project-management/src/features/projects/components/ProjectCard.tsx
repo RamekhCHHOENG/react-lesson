@@ -1,5 +1,8 @@
 import type { Project } from "@/types/project"
 import { PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/config"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Calendar, ListTodo, Pencil, Trash2, Eye } from "lucide-react"
 
 interface ProjectCardProps {
@@ -17,65 +20,50 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
   const priorityCfg = PROJECT_PRIORITY_CONFIG[project.priority]
 
   return (
-    <div className="group bg-white rounded border border-[#DFE1E6] hover:border-[#B3BAC5] hover:shadow-sm transition-all">
+    <Card className="group hover:shadow-md transition-all overflow-hidden">
       {/* Top color strip */}
-      <div className="h-1 rounded-t" style={{ backgroundColor: statusCfg?.dotColor ?? "#DFE1E6" }} />
+      <div className="h-1" style={{ backgroundColor: statusCfg?.dotColor ?? "hsl(var(--border))" }} />
 
-      <div className="p-4">
+      <CardContent className="p-4">
         {/* Title row */}
         <div className="flex items-start justify-between gap-2">
           <h3
-            className="text-sm font-semibold text-[#172B4D] truncate cursor-pointer hover:text-[#0052CC] transition-colors"
+            className="text-sm font-semibold truncate cursor-pointer hover:text-primary transition-colors"
             onClick={() => onView(project.id)}
           >
             {project.name}
           </h3>
           <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-            <button
-              onClick={() => onView(project.id)}
-              className="flex items-center justify-center h-7 w-7 rounded hover:bg-[#EBECF0] text-[#6B778C] transition-colors"
-            >
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onView(project.id)}>
               <Eye className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => onEdit(project.id)}
-              className="flex items-center justify-center h-7 w-7 rounded hover:bg-[#EBECF0] text-[#6B778C] transition-colors"
-            >
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(project.id)}>
               <Pencil className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => onDelete(project.id)}
-              className="flex items-center justify-center h-7 w-7 rounded hover:bg-[#FFEBE6] text-[#6B778C] hover:text-[#DE350B] transition-colors"
-            >
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(project.id)}>
               <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Description */}
-        <p className="text-xs text-[#6B778C] mt-1 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
           {project.description || "No description"}
         </p>
 
         {/* Badges */}
         <div className="flex flex-wrap items-center gap-1.5 mt-3">
-          <span
-            className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-            style={{ backgroundColor: statusCfg?.dotColor + "18", color: statusCfg?.dotColor }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusCfg?.dotColor }} />
+          <Badge variant="secondary" className={statusCfg?.color}>
+            <span className="w-1.5 h-1.5 rounded-full mr-1" style={{ backgroundColor: statusCfg?.dotColor }} />
             {statusCfg?.label}
-          </span>
-          <span
-            className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-            style={{ backgroundColor: priorityCfg?.dotColor + "18", color: priorityCfg?.dotColor }}
-          >
+          </Badge>
+          <Badge variant="secondary" className={priorityCfg?.color}>
             {priorityCfg?.label}
-          </span>
+          </Badge>
         </div>
 
         {/* Meta row */}
-        <div className="flex items-center gap-4 mt-3 text-[11px] text-[#6B778C]">
+        <div className="flex items-center gap-4 mt-3 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             {project.startDate}
@@ -90,12 +78,9 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
         {project.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2.5">
             {project.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded bg-[#F4F5F7] px-1.5 py-0.5 text-[10px] text-[#42526E] font-medium"
-              >
+              <Badge key={tag} variant="outline" className="text-[10px] py-0">
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
@@ -104,10 +89,10 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
         {totalTasks > 0 && (
           <div className="mt-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-[#6B778C]">Progress</span>
-              <span className="text-[10px] font-semibold text-[#172B4D]">{progress}%</span>
+              <span className="text-[10px] text-muted-foreground">Progress</span>
+              <span className="text-[10px] font-semibold">{progress}%</span>
             </div>
-            <div className="w-full bg-[#DFE1E6] rounded-full h-1.5">
+            <div className="w-full bg-secondary rounded-full h-1.5">
               <div
                 className="h-1.5 rounded-full transition-all duration-500"
                 style={{
@@ -118,7 +103,7 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

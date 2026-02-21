@@ -1,5 +1,6 @@
 import type { ProjectStatus, ProjectPriority, TaskStatus } from "@/types/project"
 import { PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG, TASK_STATUS_CONFIG } from "@/config"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface StatusBadgeProps {
@@ -14,9 +15,9 @@ export function StatusBadge({ status, type = "project", className }: StatusBadge
   if (!cfg) return null
 
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", cfg.color, className)}>
+    <Badge variant="secondary" className={cn("rounded-full", cfg.color, className)}>
       {cfg.label}
-    </span>
+    </Badge>
   )
 }
 
@@ -30,8 +31,8 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
   if (!cfg) return null
 
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", cfg.color, className)}>
+    <Badge variant="secondary" className={cn("rounded-full", cfg.color, className)}>
       {cfg.label}
-    </span>
+    </Badge>
   )
 }

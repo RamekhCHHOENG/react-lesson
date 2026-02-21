@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react"
 import { useProjects } from "@/hooks/useProjects"
 import { useProjectContext } from "@/store/ProjectContext"
+import { Button } from "@/components/ui/button"
 import {
   StatsOverview,
   ProjectCard,
@@ -110,7 +111,7 @@ export default function ProjectManagementPage({ createTrigger }: Props) {
   /* ── Detail view ── */
   if (currentViewProject) {
     return (
-      <div className="h-full flex flex-col bg-[#FAFBFC]">
+      <div className="h-full flex flex-col bg-background">
         <div className="flex-1 overflow-auto p-6">
           <ProjectDetail
             project={currentViewProject}
@@ -135,29 +136,26 @@ export default function ProjectManagementPage({ createTrigger }: Props) {
 
   /* ── List view ── */
   return (
-    <div className="h-full flex flex-col bg-[#FAFBFC]">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-[#DFE1E6] shrink-0">
+      <div className="bg-card border-b shrink-0">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-[#0052CC] to-[#6554C0]">
-                <FolderKanban className="h-4 w-4 text-white" />
+              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-primary to-purple-600">
+                <FolderKanban className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-[#172B4D]">Projects</h1>
-                <p className="text-sm text-[#6B778C] mt-0.5">
+                <h1 className="text-xl font-semibold text-foreground">Projects</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {stats.total} project{stats.total !== 1 ? "s" : ""} &middot; {stats.completed} completed
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setCreateDialogOpen(true)}
-              className="flex items-center gap-1.5 h-8 px-3 rounded bg-[#0052CC] hover:bg-[#0065FF] text-white text-sm font-medium transition-colors"
-            >
+            <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
               <Plus className="h-3.5 w-3.5" />
               Create project
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -177,21 +175,18 @@ export default function ProjectManagementPage({ createTrigger }: Props) {
 
         {filteredProjects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <FolderKanban className="h-12 w-12 text-[#DFE1E6] mb-4" />
-            <h3 className="text-base font-medium text-[#172B4D]">No projects found</h3>
-            <p className="text-sm text-[#6B778C] mt-1">
+            <FolderKanban className="h-12 w-12 text-muted-foreground/40 mb-4" />
+            <h3 className="text-base font-medium text-foreground">No projects found</h3>
+            <p className="text-sm text-muted-foreground mt-1">
               {state.projects.length === 0
                 ? "Create your first project to get started."
                 : "Try adjusting your filters."}
             </p>
             {state.projects.length === 0 && (
-              <button
-                className="mt-4 flex items-center gap-1.5 h-8 px-3 rounded bg-[#0052CC] hover:bg-[#0065FF] text-white text-sm font-medium transition-colors"
-                onClick={() => setCreateDialogOpen(true)}
-              >
+              <Button size="sm" className="mt-4" onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="h-3.5 w-3.5" />
                 Create project
-              </button>
+              </Button>
             )}
           </div>
         ) : (

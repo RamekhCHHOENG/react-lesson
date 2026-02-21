@@ -1,4 +1,5 @@
 import type { ProjectStats } from "@/types/project"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   FolderKanban,
   ClipboardList,
@@ -25,21 +26,20 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {statItems.map(({ key, label, icon: Icon, color, bg }) => (
-        <div
-          key={key}
-          className="bg-white rounded border border-[#DFE1E6] p-3 hover:border-[#B3BAC5] transition-colors"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <div
-              className="flex items-center justify-center w-7 h-7 rounded"
-              style={{ backgroundColor: bg }}
-            >
-              <Icon className="h-3.5 w-3.5" style={{ color }} />
+        <Card key={key} className="hover:border-muted-foreground/30 transition-colors">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="flex items-center justify-center w-7 h-7 rounded"
+                style={{ backgroundColor: bg }}
+              >
+                <Icon className="h-3.5 w-3.5" style={{ color }} />
+              </div>
             </div>
-          </div>
-          <p className="text-2xl font-bold text-[#172B4D]">{stats[key]}</p>
-          <p className="text-[11px] text-[#6B778C] font-medium mt-0.5">{label}</p>
-        </div>
+            <p className="text-2xl font-bold">{stats[key]}</p>
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">{label}</p>
+          </CardContent>
+        </Card>
       ))}
     </div>
   )
