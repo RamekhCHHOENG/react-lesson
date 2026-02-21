@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ProjectProvider } from "@/store/ProjectContext"
 import { AuthProvider, useAuth } from "@/store/AuthContext"
@@ -25,17 +25,34 @@ const queryClient = new QueryClient({
 
 type Page = "projects" | "board" | "backlog" | "reports" | "settings"
 
+const VALID_PAGES: Page[] = ["projects", "board", "backlog", "reports", "settings"]
+
+/** Read the current page from the URL hash, e.g. #board → "board" */
+function getPageFromHash(): Page {
+  const raw = window.location.hash.replace("#", "").toLowerCase()
+  return VALID_PAGES.includes(raw as Page) ? (raw as Page) : "projects"
+}
+
 function Dashboard() {
-  const [activePage, setActivePage] = useState<Page>("projects")
+  const [activePage, setActivePage] = useState<Page>(getPageFromHash)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
   const { createProject, isCreating } = useProjects()
 
-  const handleCreate = useCallback(() => {
-    setCreateProjectOpen(true)
+  // Push to hash when navigating
+  const navigate = useCallback((page: Page) => {
+    setActivePage(page)
+    window.location.hash = page === "projects" ? "" : page
   }, [])
 
-  const handleNavigate = useCallback((page: string) => {
-    setActivePage(page as Page)
+  // Listen for browser back / forward
+  useEffect(() => {
+    const onHashChange = () => setActivePage(getPageFromHash())
+    window.addEventListener("hashchange", onHashChange)
+    return () => window.removeEventListener("hashchange", onHashChange)
+  }, [])
+
+  const handleCreate = useCallback(() => {
+    setCreateProjectOpen(true)
   }, [])
 
   const renderPage = () => {
@@ -55,9 +72,9 @@ function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F4F5F7]">
-      <Sidebar activeItem={activePage} onItemClick={(item) => setActivePage(item as Page)} />
+      <Sidebar activeItem={activePage} onItemClick={(item) => navigate(item as Page)} />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopNav activePage={activePage} onCreateProject={handleCreate} onNavigate={handleNavigate} />
+        <TopNav activePage={activePage} onCreateProject={handleCreate} onNavigate={(p) => navigate(p as Page)} />
         <main className="flex-1 overflow-hidden">{renderPage()}</main>
       </div>
 
