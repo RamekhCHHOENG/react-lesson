@@ -1,16 +1,22 @@
 /**
- * In-Memory Database
+ * In-Memory Database with Persistence
  *
  * Stores all data in a module-level variable (application RAM),
  * just like a Java/Spring application stores data in its JVM heap.
  *
- * - Data persists as long as the browser tab is open.
- * - Data resets on page refresh (like restarting a Spring server).
- * - All mutations happen in-memory — no localStorage involved.
+ * Persistence layer:
+ * - After every mutation, data is synced to localStorage (like DB → disk flush).
+ * - On startup, loads from localStorage if available (like DB recovery on restart).
+ * - If no saved data exists, seeds with demo data.
+ *
+ * When switching to a real Spring Boot API:
+ * - Remove this file entirely — persistence is handled by the real DB (PostgreSQL, etc.)
  */
 
 import type { Project, Task, ProjectFormData, TaskFormData } from "@/types/project"
 import { createSeedProjects } from "@/services/seedData"
+
+const PERSIST_KEY = "projecthub_db"
 
 // ── In-memory store (like Java static field or Spring @Repository bean) ──
 let projects: Project[] = []
@@ -20,10 +26,37 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 }
 
-// ── Initialize with seed data (like Spring CommandLineRunner) ───
+// ── Persistence helpers (like JPA flushing to disk) ─────────────
+function persist(): void {
+  try {
+    localStorage.setItem(PERSIST_KEY, JSON.stringify(projects))
+  } catch {
+    console.warn("[DB] Failed to persist data to localStorage")
+  }
+}
+
+function loadPersistedData(): Project[] | null {
+  try {
+    const raw = localStorage.getItem(PERSIST_KEY)
+    if (raw) {
+      const data = JSON.parse(raw) as Project[]
+      if (Array.isArray(data) && data.length > 0) return data
+    }
+  } catch { /* corrupted data — ignore */ }
+  return null
+}
+
+// ── Initialize: recover from disk or seed fresh ─────────────────
 function initialize(): void {
-  projects = createSeedProjects()
-  console.log(`[DB] Initialized with ${projects.length} projects`)
+  const saved = loadPersistedData()
+  if (saved) {
+    projects = saved
+    console.log(`[DB] Recovered ${projects.length} projects from storage`)
+  } else {
+    projects = createSeedProjects()
+    persist()
+    console.log(`[DB] Initialized with ${projects.length} seed projects`)
+  }
 }
 
 // ── Search result type ──────────────────────────────────────────
@@ -61,6 +94,7 @@ export const db = {
         updatedAt: now,
       }
       projects.unshift(project)
+      persist()
       return { ...project }
     },
 
@@ -72,12 +106,14 @@ export const db = {
         ...data,
         updatedAt: new Date().toISOString(),
       }
+      persist()
       return { ...projects[index] }
     },
 
     delete(id: string): boolean {
       const before = projects.length
       projects = projects.filter((p) => p.id !== id)
+      if (projects.length < before) persist()
       return projects.length < before
     },
   },
@@ -96,6 +132,7 @@ export const db = {
       }
       project.tasks.push(task)
       project.updatedAt = now
+      persist()
       return { ...task }
     },
 
@@ -115,6 +152,7 @@ export const db = {
         updatedAt: now,
       }
       project.updatedAt = now
+      persist()
       return { ...project.tasks[tIndex] }
     },
 
@@ -125,6 +163,7 @@ export const db = {
       project.tasks = project.tasks.filter((t) => t.id !== taskId)
       if (project.tasks.length < before) {
         project.updatedAt = new Date().toISOString()
+        persist()
         return true
       }
       return false
@@ -191,11 +230,13 @@ export const db = {
 
     clear() {
       projects = []
+      persist()
       console.log("[DB] All data cleared")
     },
 
     reseed() {
       projects = createSeedProjects()
+      persist()
       console.log(`[DB] Re-seeded with ${projects.length} projects`)
     },
 
