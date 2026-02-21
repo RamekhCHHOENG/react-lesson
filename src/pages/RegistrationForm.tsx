@@ -88,7 +88,6 @@ class RegistrationForm extends React.Component<
       submitted: false,
       submittedData: null,
     };
-    console.log("[RegistrationForm] constructor() — state initialised");
   }
 
   /**
@@ -97,7 +96,6 @@ class RegistrationForm extends React.Component<
    * Good place for subscriptions, API calls, etc.
    */
   componentDidMount(): void {
-    console.log("[RegistrationForm] componentDidMount() — form is in the DOM");
     document.title = "Employee Registration";
   }
 
@@ -113,7 +111,6 @@ class RegistrationForm extends React.Component<
     _nextProps: Record<string, never>,
     nextState: RegistrationFormState
   ): boolean {
-    console.log("[RegistrationForm] shouldComponentUpdate()");
     // Example: skip re-render if nothing changed
     if (
       this.state.formData === nextState.formData &&
@@ -134,9 +131,6 @@ class RegistrationForm extends React.Component<
     prevState: RegistrationFormState
   ): void {
     if (prevState.submitted !== this.state.submitted && this.state.submitted) {
-      console.log(
-        "[RegistrationForm] componentDidUpdate() — form was submitted!"
-      );
     }
   }
 
@@ -145,7 +139,6 @@ class RegistrationForm extends React.Component<
    * Lesson: "don't forget to unsubscribe in componentWillUnmount()."
    */
   componentWillUnmount(): void {
-    console.log("[RegistrationForm] componentWillUnmount() — cleaning up");
     document.title = "React App";
   }
 
@@ -155,7 +148,6 @@ class RegistrationForm extends React.Component<
    * Lesson: "Always use setState."
    */
   handleFieldChange = (field: keyof EmployeeFormData) => (value: string) => {
-    console.log(`[RegistrationForm] Field changed: ${field} =`, value);
     this.setState((prevState) => ({
       formData: { ...prevState.formData, [field]: value },
       errors: [], // clear errors on change
@@ -224,7 +216,6 @@ class RegistrationForm extends React.Component<
       submittedData: { ...this.state.formData },
       errors: [],
     });
-    console.log("[RegistrationForm] Form submitted:", this.state.formData);
   };
 
   /**

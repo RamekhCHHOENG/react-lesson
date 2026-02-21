@@ -113,6 +113,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             checked={formData.isDisabled}
             onChange={(v) => onFieldChange("isDisabled", v)}
           />
+          <div className="reg__disability-bar" />
           {formData.isDisabled && (
             <div className="reg__disability-input">
               <InputField

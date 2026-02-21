@@ -12,7 +12,7 @@
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./layouts";
-import { RegistrationForm, CreateEmployee, Register } from "./pages";
+import { RegistrationForm, CreateEmployee, Register, NewRegister } from "./pages";
 
 const AppRouter: React.FC = () => {
   return (
@@ -22,6 +22,7 @@ const AppRouter: React.FC = () => {
           <Route path="/" element={<RegistrationForm />} />
           <Route path="/create-employee" element={<CreateEmployee />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/new-register" element={<NewRegister />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>

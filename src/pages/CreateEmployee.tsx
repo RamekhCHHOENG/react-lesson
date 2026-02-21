@@ -16,7 +16,6 @@
  *   ✅ Composition — reuses shared /components/
  *
  * DEMO FEATURES:
- *   🎯 Colored console.groupCollapsed logs for every lifecycle
  *   🎯 State diff table in shouldComponentUpdate
  *   🎯 Render count + timing in every log
  *   🎯 Password show/hide (parent state → child prop)
@@ -36,28 +35,6 @@ import {
   isFormComplete,
 } from "../utils";
 import "../styles/CreateEmployee.css";
-
-/* ═══════════════════════════════════════════════════════════
- * DEBUG LOGGING UTILITIES
- * ═══════════════════════════════════════════════════════════ */
-
-const LOG = {
-  mount:   "color:#22c55e;font-weight:bold;font-size:12px;",
-  render:  "color:#8b5cf6;font-weight:bold;font-size:12px;",
-  update:  "color:#f59e0b;font-weight:bold;font-size:12px;",
-  unmount: "color:#ef4444;font-weight:bold;font-size:12px;",
-  field:   "color:#06b6d4;font-weight:bold;font-size:11px;",
-  info:    "color:#888;font-size:10px;",
-  dim:     "color:#bbb;font-size:10px;font-style:italic;",
-  accent:  "color:#667eea;font-weight:bold;font-size:11px;",
-  success: "color:#22c55e;font-weight:bold;font-size:13px;",
-  error:   "color:#ef4444;font-weight:bold;font-size:11px;",
-};
-
-function ts(): string {
-  const d = new Date();
-  return `${d.toLocaleTimeString()}.${String(d.getMilliseconds()).padStart(3, "0")}`;
-}
 
 function getPasswordStrength(pw: string) {
   if (!pw) return { level: "none", percent: 0, label: "", color: "#e0e3ea" };
@@ -153,135 +130,24 @@ class CreateEmployee extends React.Component<
       showConfirmPassword: false,
       touchedFields: {},
     };
-
-    /* ── Rich Debug Log ── */
-    console.log(
-      `%c
-╔═══════════════════════════════════════════════════════╗
-║   ⚛️  React Class Component — Lifecycle Demo         ║
-╠═══════════════════════════════════════════════════════╣
-║                                                       ║
-║   MOUNTING PHASE:                                     ║
-║   constructor() → render() → componentDidMount()      ║
-║                                                       ║
-║   UPDATING PHASE (on every setState):                 ║
-║   shouldComponentUpdate() → render() →                ║
-║   componentDidUpdate()                                ║
-║                                                       ║
-║   UNMOUNTING PHASE:                                   ║
-║   componentWillUnmount()                              ║
-║                                                       ║
-╚═══════════════════════════════════════════════════════╝`,
-      "color:#667eea;font-family:monospace;font-size:11px;"
-    );
-
-    console.groupCollapsed(`%c🏗️ [CreateEmployee] constructor()`, LOG.mount);
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log("%c📦 Initial State:", LOG.info, this.state.formData);
-    console.log(
-      '%c💡 Lesson: "constructor() is called first — initialise state here, never call setState() in constructor"',
-      LOG.dim
-    );
-    console.groupEnd();
   }
 
   /* ──────────────────────────────────────────────────────────
    * MOUNTING: componentDidMount()
    * ────────────────────────────────────────────────────────── */
   componentDidMount(): void {
-    console.groupCollapsed(
-      `%c✅ [CreateEmployee] componentDidMount() — IN THE DOM`,
-      LOG.mount
-    );
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log(
-      `%c📌 Component mounted after render #${this.renderCount}`,
-      LOG.info
-    );
-    console.log("%c🎬 Side-effect: document.title updated", LOG.info);
-    console.log(
-      '%c💡 Lesson: "componentDidMount() is a good place for subscriptions, API calls, DOM manipulation"',
-      LOG.dim
-    );
-    console.groupEnd();
-
     document.title = "Create Employee — Premium";
     this.lastRenderTimestamp = Date.now();
   }
 
   /* ──────────────────────────────────────────────────────────
    * UPDATING: shouldComponentUpdate()
-   * Shows a FULL STATE DIFF in the console for demo
    * ────────────────────────────────────────────────────────── */
   shouldComponentUpdate(
     _nextProps: Record<string, never>,
     nextState: CreateEmployeeState
   ): boolean {
-    const changes: string[] = [];
-    const formDiff: Record<string, string> = {};
-
-    /* Detect which formData fields changed */
-    if (this.state.formData !== nextState.formData) {
-      (Object.keys(this.state.formData) as (keyof EmployeeFormData)[]).forEach(
-        (key) => {
-          if (this.state.formData[key] !== nextState.formData[key]) {
-            formDiff[key] = `"${this.state.formData[key]}" → "${nextState.formData[key]}"`;
-            changes.push(`formData.${key}`);
-          }
-        }
-      );
-    }
-
-    /* Detect other state changes */
-    if (this.state.errors !== nextState.errors) changes.push("errors");
-    if (this.state.submitted !== nextState.submitted) changes.push("submitted");
-    if (this.state.submittedData !== nextState.submittedData) changes.push("submittedData");
-    if (this.state.focusedField !== nextState.focusedField) changes.push("focusedField");
-    if (this.state.showPassword !== nextState.showPassword) changes.push("showPassword");
-    if (this.state.showConfirmPassword !== nextState.showConfirmPassword) changes.push("showConfirmPassword");
-    if (this.state.touchedFields !== nextState.touchedFields) changes.push("touchedFields");
-
-    const shouldUpdate = changes.length > 0;
-    const elapsed = ((Date.now() - this.lastRenderTimestamp) / 1000).toFixed(3);
-
-    console.groupCollapsed(
-      `%c🤔 [CreateEmployee] shouldComponentUpdate() → ${shouldUpdate ? "✅ YES (will re-render)" : "⛔ NO (skip)"}`,
-      shouldUpdate ? LOG.update : LOG.dim
-    );
-    console.log(
-      `%c⏱️ ${ts()} | Render #${this.renderCount}${shouldUpdate ? ` → #${this.renderCount + 1}` : ""} | Δ${elapsed}s since last render`,
-      LOG.dim
-    );
-
-    if (changes.length > 0) {
-      console.log(`%c🔍 Changed keys: [${changes.join(", ")}]`, LOG.field);
-      if (Object.keys(formDiff).length > 0) {
-        console.log("%c📊 Form Data Diff:", LOG.info);
-        console.table(formDiff);
-      }
-      if (changes.includes("showPassword"))
-        console.log(
-          `%c👁️ Password visibility: ${nextState.showPassword ? "VISIBLE" : "HIDDEN"}`,
-          LOG.field
-        );
-      if (changes.includes("showConfirmPassword"))
-        console.log(
-          `%c👁️ Confirm Password visibility: ${nextState.showConfirmPassword ? "VISIBLE" : "HIDDEN"}`,
-          LOG.field
-        );
-    } else {
-      console.log(
-        "%c💤 No state changes — re-render skipped for performance",
-        LOG.dim
-      );
-    }
-    console.log(
-      '%c💡 Lesson: "shouldComponentUpdate() optimises by skipping unnecessary re-renders"',
-      LOG.dim
-    );
-    console.groupEnd();
-
-    return shouldUpdate;
+    return this.state !== nextState;
   }
 
   /* ──────────────────────────────────────────────────────────
@@ -289,65 +155,8 @@ class CreateEmployee extends React.Component<
    * ────────────────────────────────────────────────────────── */
   componentDidUpdate(
     _prevProps: Record<string, never>,
-    prevState: CreateEmployeeState
+    _prevState: CreateEmployeeState
   ): void {
-    const sinceMount = ((Date.now() - this.mountTimestamp) / 1000).toFixed(2);
-    const sinceLast = ((Date.now() - this.lastRenderTimestamp) / 1000).toFixed(3);
-
-    console.groupCollapsed(
-      `%c🔄 [CreateEmployee] componentDidUpdate() — render #${this.renderCount}`,
-      LOG.update
-    );
-    console.log(
-      `%c⏱️ ${ts()} | +${sinceMount}s since mount | Δ${sinceLast}s since last render`,
-      LOG.dim
-    );
-
-    /* What triggered this update? */
-    if (prevState.formData !== this.state.formData) {
-      console.log("%c📝 Form Data (current snapshot):", LOG.field);
-      console.table(this.state.formData);
-    }
-    if (prevState.submitted !== this.state.submitted && this.state.submitted) {
-      console.log(
-        "%c🎉 FORM SUBMITTED!",
-        "color:#22c55e;font-weight:bold;font-size:16px;"
-      );
-      console.log("%c📋 Submitted Data:", LOG.info, this.state.submittedData);
-    }
-    if (
-      prevState.errors !== this.state.errors &&
-      this.state.errors.length > 0
-    ) {
-      console.log(
-        "%c❌ Validation Errors:",
-        LOG.error,
-        this.state.errors
-      );
-    }
-
-    /* Progress */
-    const fields = [
-      this.state.formData.firstName,
-      this.state.formData.lastName,
-      this.state.formData.password,
-      this.state.formData.confirmPassword,
-      this.state.formData.email,
-      this.state.formData.phone,
-      this.state.formData.securityQuestion,
-      this.state.formData.securityAnswer,
-    ];
-    const filled = fields.filter((f) => f.trim().length > 0).length;
-    console.log(
-      `%c📊 Progress: ${Math.round((filled / fields.length) * 100)}% (${filled}/${fields.length} fields filled)`,
-      LOG.info
-    );
-    console.log(
-      '%c💡 Lesson: "componentDidUpdate() runs after the DOM has been updated"',
-      LOG.dim
-    );
-    console.groupEnd();
-
     this.lastRenderTimestamp = Date.now();
   }
 
@@ -355,23 +164,6 @@ class CreateEmployee extends React.Component<
    * UNMOUNTING: componentWillUnmount()
    * ────────────────────────────────────────────────────────── */
   componentWillUnmount(): void {
-    const totalTime = ((Date.now() - this.mountTimestamp) / 1000).toFixed(2);
-    console.groupCollapsed(
-      `%c🧹 [CreateEmployee] componentWillUnmount()`,
-      LOG.unmount
-    );
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log(
-      `%c📊 Total renders: ${this.renderCount} | Alive for: ${totalTime}s`,
-      LOG.info
-    );
-    console.log("%c🎬 Cleaning up: resetting document.title", LOG.info);
-    console.log(
-      '%c💡 Lesson: "componentWillUnmount() — clean up subscriptions, timers, DOM refs"',
-      LOG.dim
-    );
-    console.groupEnd();
-
     document.title = "React App";
   }
 
@@ -380,20 +172,6 @@ class CreateEmployee extends React.Component<
    * Lesson: "Always use setState(). Never mutate this.state."
    * ────────────────────────────────────────────────────────── */
   handleFieldChange = (field: keyof EmployeeFormData) => (value: string) => {
-    const oldValue = this.state.formData[field];
-
-    console.groupCollapsed(
-      `%c✏️ [CreateEmployee] Field Changed: ${field}`,
-      LOG.field
-    );
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log(`%c📝 "${oldValue}" → "${value}"`, LOG.info);
-    console.log(
-      '%c💡 Lesson: "setState((prevState) => ...) — callback form ensures latest state"',
-      LOG.dim
-    );
-    console.groupEnd();
-
     this.setState((prevState) => ({
       formData: { ...prevState.formData, [field]: value },
       errors: [],
@@ -402,15 +180,10 @@ class CreateEmployee extends React.Component<
 
   /* Focus / Blur — compact logs */
   handleFocus = (field: string) => () => {
-    console.log(`%c  👆 focus → ${field}`, "color:#ccc;font-size:10px;");
     this.setState({ focusedField: field });
   };
 
   handleBlur = (field: string) => () => {
-    console.log(
-      `%c  👋 blur ← ${field} (marked touched)`,
-      "color:#ccc;font-size:10px;"
-    );
     this.setState((prev) => ({
       focusedField: "",
       touchedFields: { ...prev.touchedFields, [field]: true },
@@ -424,30 +197,11 @@ class CreateEmployee extends React.Component<
    * ────────────────────────────────────────────────────────── */
   togglePassword = () => {
     const next = !this.state.showPassword;
-    console.groupCollapsed(`%c👁️ [CreateEmployee] Password Toggle`, LOG.accent);
-    console.log(
-      `%c${next ? "SHOWING" : "HIDING"} password text`,
-      LOG.info
-    );
-    console.log(
-      `%c💡 Parent state → child prop: type="${next ? "text" : "password"}"`,
-      LOG.dim
-    );
-    console.groupEnd();
     this.setState({ showPassword: next });
   };
 
   toggleConfirmPassword = () => {
     const next = !this.state.showConfirmPassword;
-    console.groupCollapsed(
-      `%c👁️ [CreateEmployee] Confirm Password Toggle`,
-      LOG.accent
-    );
-    console.log(
-      `%c${next ? "SHOWING" : "HIDING"} confirm password text`,
-      LOG.info
-    );
-    console.groupEnd();
     this.setState({ showConfirmPassword: next });
   };
 
@@ -484,19 +238,6 @@ class CreateEmployee extends React.Component<
     e.preventDefault();
     const errs = this.validate();
 
-    console.groupCollapsed(
-      `%c🎯 [CreateEmployee] handleSubmit()`,
-      errs.length > 0 ? LOG.error : LOG.success
-    );
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    if (errs.length > 0) {
-      console.log("%c❌ Validation failed:", LOG.error, errs);
-    } else {
-      console.log("%c✅ Validation passed — submitting!", LOG.success);
-      console.log("%c📋 Data:", LOG.info, this.state.formData);
-    }
-    console.groupEnd();
-
     if (errs.length > 0) {
       this.setState({ errors: errs });
       return;
@@ -510,10 +251,6 @@ class CreateEmployee extends React.Component<
 
   /* ── Reset ── */
   handleReset = (): void => {
-    console.groupCollapsed(`%c🔃 [CreateEmployee] handleReset()`, LOG.accent);
-    console.log(`%c⏱️ ${ts()} — clearing all state`, LOG.dim);
-    console.groupEnd();
-
     this.setState({
       formData: {
         firstName: "",
@@ -582,23 +319,6 @@ class CreateEmployee extends React.Component<
       formData.password && formData.confirmPassword
         ? doPasswordsMatch(formData.password, formData.confirmPassword)
         : null;
-
-    /* ── Rich render log ── */
-    const sinceMountSec = ((Date.now() - this.mountTimestamp) / 1000).toFixed(2);
-    console.groupCollapsed(
-      `%c🎨 [CreateEmployee] render() #${this.renderCount}`,
-      LOG.render
-    );
-    console.log(`%c⏱️ ${ts()} | +${sinceMountSec}s since mount`, LOG.dim);
-    console.log(
-      `%c📊 Progress: ${progress}% (${filledCount}/${formFields.length}) | 🔐 Strength: ${strength.label || "N/A"}`,
-      LOG.info
-    );
-    console.log(
-      '%c💡 Lesson: "render() is pure — called during both Mounting and Updating phases"',
-      LOG.dim
-    );
-    console.groupEnd();
 
     return (
       <div className="ce">

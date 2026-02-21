@@ -24,7 +24,6 @@ const API_BASE = "/api";
 export async function registerEmployee(
   data: EmployeeFormData
 ): Promise<{ success: boolean; message: string }> {
-  console.log(`[API] POST ${API_BASE}/employees`, data);
 
   // Simulate network delay
   return new Promise((resolve) => {

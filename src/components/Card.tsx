@@ -92,7 +92,6 @@ export class StatefulCard extends React.Component<CardProps, StatefulCardState> 
       renderCount: 0,
       mountedAt: "",
     };
-    console.log("[StatefulCard] constructor() — state initialised");
   }
 
   /**
@@ -105,7 +104,6 @@ export class StatefulCard extends React.Component<CardProps, StatefulCardState> 
    */
   componentDidMount(): void {
     this.setState({ mountedAt: new Date().toLocaleTimeString() });
-    console.log("[StatefulCard] componentDidMount() — card is in the DOM");
   }
 
   /**
@@ -118,9 +116,7 @@ export class StatefulCard extends React.Component<CardProps, StatefulCardState> 
     prevState: StatefulCardState
   ): void {
     if (prevState.renderCount !== this.state.renderCount) {
-      console.log(
-        `[StatefulCard] componentDidUpdate() — renderCount changed to ${this.state.renderCount}`
-      );
+      // renderCount changed
     }
   }
 
@@ -131,7 +127,7 @@ export class StatefulCard extends React.Component<CardProps, StatefulCardState> 
    * in componentWillUnmount()."
    */
   componentWillUnmount(): void {
-    console.log("[StatefulCard] componentWillUnmount() — cleaning up");
+    // cleanup
   }
 
   /**

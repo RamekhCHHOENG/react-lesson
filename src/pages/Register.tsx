@@ -33,26 +33,6 @@ import type { RegisterFormData, SubjectEntry } from "../types";
 import "../styles/Register.css";
 
 /* ═══════════════════════════════════════
- * Console log styles for demo
- * ═══════════════════════════════════════ */
-const LOG = {
-  mount:   "color:#667eea;font-weight:bold;font-size:12px;",
-  update:  "color:#f59e0b;font-weight:bold;font-size:11px;",
-  unmount: "color:#ef4444;font-weight:bold;font-size:12px;",
-  field:   "color:#3b82f6;font-weight:bold;font-size:11px;",
-  render:  "color:#8b5cf6;font-weight:bold;font-size:11px;",
-  info:    "color:#888;font-size:10px;",
-  dim:     "color:#bbb;font-size:10px;font-style:italic;",
-  success: "color:#22c55e;font-weight:bold;font-size:13px;",
-  error:   "color:#ef4444;font-weight:bold;font-size:11px;",
-};
-
-function ts(): string {
-  const d = new Date();
-  return `${d.toLocaleTimeString()}.${String(d.getMilliseconds()).padStart(3, "0")}`;
-}
-
-/* ═══════════════════════════════════════
  * STATE INTERFACE
  * ═══════════════════════════════════════ */
 interface RegisterState {
@@ -66,13 +46,10 @@ interface RegisterState {
  * CLASS COMPONENT
  * ═══════════════════════════════════════ */
 class Register extends React.Component<Record<string, never>, RegisterState> {
-  private renderCount = 0;
-  private mountTimestamp = 0;
 
   /* ── constructor() ── */
   constructor(props: Record<string, never>) {
     super(props);
-    this.mountTimestamp = Date.now();
 
     this.state = {
       formData: {
@@ -95,20 +72,10 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
       submittedData: null,
       nextSubjectId: 2,
     };
-
-    console.groupCollapsed(`%c🏗️ [Register] constructor()`, LOG.mount);
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log("%c📦 Initial State:", LOG.info, this.state.formData);
-    console.log('%c💡 "constructor() → initialise state, never call setState here"', LOG.dim);
-    console.groupEnd();
   }
 
   /* ── componentDidMount() ── */
   componentDidMount(): void {
-    console.groupCollapsed(`%c✅ [Register] componentDidMount()`, LOG.mount);
-    console.log(`%c⏱️ ${ts()} — Component is now in the DOM`, LOG.dim);
-    console.log('%c💡 "Good place for API calls, subscriptions, DOM manipulation"', LOG.dim);
-    console.groupEnd();
     document.title = "Signup for Free";
   }
 
@@ -118,43 +85,19 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
     nextState: RegisterState
   ): boolean {
     const changed = this.state !== nextState;
-    console.groupCollapsed(
-      `%c🤔 [Register] shouldComponentUpdate() → ${changed ? "✅ YES" : "⛔ NO"}`,
-      changed ? LOG.update : LOG.dim
-    );
-    console.log(`%c⏱️ ${ts()} | Render #${this.renderCount}${changed ? ` → #${this.renderCount + 1}` : ""}`, LOG.dim);
-    console.log('%c💡 "Optimise by returning false to skip unnecessary re-renders"', LOG.dim);
-    console.groupEnd();
     return changed;
   }
 
   /* ── componentDidUpdate() ── */
   componentDidUpdate(
     _prevProps: Record<string, never>,
-    prevState: RegisterState
+    _prevState: RegisterState
   ): void {
-    const sinceMount = ((Date.now() - this.mountTimestamp) / 1000).toFixed(2);
-    console.groupCollapsed(
-      `%c🔄 [Register] componentDidUpdate() — render #${this.renderCount}`,
-      LOG.update
-    );
-    console.log(`%c⏱️ ${ts()} | +${sinceMount}s since mount`, LOG.dim);
-
-    if (prevState.submitted !== this.state.submitted && this.state.submitted) {
-      console.log("%c🎉 FORM SUBMITTED!", "color:#22c55e;font-weight:bold;font-size:16px;");
-      console.log("%c📋 Submitted Data:", LOG.info, this.state.submittedData);
-    }
-    console.log('%c💡 "componentDidUpdate() runs after DOM has been updated"', LOG.dim);
-    console.groupEnd();
+    // Called after every re-render
   }
 
   /* ── componentWillUnmount() ── */
   componentWillUnmount(): void {
-    const totalTime = ((Date.now() - this.mountTimestamp) / 1000).toFixed(2);
-    console.groupCollapsed(`%c🧹 [Register] componentWillUnmount()`, LOG.unmount);
-    console.log(`%c⏱️ ${ts()} | Total renders: ${this.renderCount} | Alive: ${totalTime}s`, LOG.dim);
-    console.log('%c💡 "Clean up subscriptions, timers, DOM refs"', LOG.dim);
-    console.groupEnd();
     document.title = "React App";
   }
 
@@ -165,11 +108,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
 
   /** Generic field change — works for string & boolean fields */
   handleFieldChange = (field: keyof RegisterFormData, value: string | boolean) => {
-    console.groupCollapsed(`%c✏️ [Register] Field: ${field}`, LOG.field);
-    console.log(`%c⏱️ ${ts()} | "${this.state.formData[field]}" → "${value}"`, LOG.dim);
-    console.log('%c💡 "setState((prev) => ...) — callback form for latest state"', LOG.dim);
-    console.groupEnd();
-
     this.setState((prev) => ({
       formData: { ...prev.formData, [field]: value },
     }));
@@ -177,8 +115,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
 
   /** Education subject row change */
   handleSubjectChange = (id: number, field: keyof SubjectEntry, value: string) => {
-    console.log(`%c  📚 Subject #${id}.${field} → "${value}"`, LOG.info);
-
     this.setState((prev) => ({
       formData: {
         ...prev.formData,
@@ -191,8 +127,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
 
   /** Add education row */
   handleAddSubject = () => {
-    console.log(`%c  ➕ Add education row #${this.state.nextSubjectId}`, LOG.info);
-
     this.setState((prev) => ({
       formData: {
         ...prev.formData,
@@ -207,8 +141,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
 
   /** Remove education row */
   handleRemoveSubject = (id: number) => {
-    console.log(`%c  ➖ Remove education row #${id}`, LOG.info);
-
     this.setState((prev) => ({
       formData: {
         ...prev.formData,
@@ -220,8 +152,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
   /** File upload */
   handleFileChange = (file: File | null) => {
     const name = file ? file.name : "";
-    console.log(`%c  📎 File: ${name || "(cleared)"}`, LOG.info);
-
     this.setState((prev) => ({
       formData: { ...prev.formData, cvUrl: name },
     }));
@@ -230,12 +160,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
   /** Submit */
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.groupCollapsed(`%c🎯 [Register] handleSubmit()`, LOG.success);
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log("%c📋 Data:", LOG.info, this.state.formData);
-    console.groupEnd();
-
     this.setState({
       submitted: true,
       submittedData: { ...this.state.formData },
@@ -244,7 +168,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
 
   /** Reset */
   handleReset = () => {
-    console.log(`%c🔃 [Register] Reset form`, LOG.info);
     this.setState({
       formData: {
         subjects: [{ id: 1, subject: "", schoolName: "", year: "" }],
@@ -275,10 +198,6 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
     this.renderCount++;
     const { formData, submitted, submittedData } = this.state;
 
-    console.groupCollapsed(`%c🎨 [Register] render() #${this.renderCount}`, LOG.render);
-    console.log(`%c⏱️ ${ts()}`, LOG.dim);
-    console.log('%c💡 "render() is pure — called during Mounting & Updating"', LOG.dim);
-    console.groupEnd();
 
     return (
       <div className="reg">

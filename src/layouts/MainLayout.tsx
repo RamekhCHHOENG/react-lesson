@@ -36,7 +36,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </h1>
         <nav className="layout__nav">
           <Link to="/" className="layout__link">Basic Form</Link>
-          <Link to="/register" className="layout__link layout__link--fancy">📝 Register</Link>
+          <Link to="/register" className="layout__link">📝 Register (Old)</Link>
+          <Link to="/new-register" className="layout__link layout__link--fancy">🧩 Register (Components)</Link>
         </nav>
       </header>
 
