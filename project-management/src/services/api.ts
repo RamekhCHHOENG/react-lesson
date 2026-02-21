@@ -1,54 +1,35 @@
 /**
- * Virtual API Service
+ * API Client
  *
- * Simulates a REST API backed by localStorage.
- * All methods are async and return Promises, just like real HTTP calls.
- * This makes it trivial to swap in a real backend later.
+ * Makes real HTTP fetch() calls to REST endpoints.
+ * In development, MSW (Mock Service Worker) intercepts these calls
+ * and serves data from an in-memory store (like Java/Spring RAM).
  *
- * Endpoints simulated:
- *   GET    /api/projects          → getProjects()
- *   GET    /api/projects/:id      → getProject(id)
- *   POST   /api/projects          → createProject(data)
- *   PUT    /api/projects/:id      → updateProject(id, data)
- *   DELETE /api/projects/:id      → deleteProject(id)
- *   POST   /api/projects/:id/tasks          → addTask(projectId, data)
- *   PUT    /api/projects/:id/tasks/:taskId  → updateTask(projectId, taskId, data)
- *   DELETE /api/projects/:id/tasks/:taskId  → deleteTask(projectId, taskId)
+ * When connecting to a real backend (e.g., Spring Boot):
+ *   1. Remove MSW startup from main.tsx
+ *   2. Change BASE_URL to your real server (e.g., "http://localhost:8080/api")
+ *   3. Everything just works — no other code changes needed!
+ *
+ * Endpoints:
+ *   GET    /api/projects                    → projects.getAll()
+ *   GET    /api/projects/:id                → projects.getById(id)
+ *   POST   /api/projects                    → projects.create(data)
+ *   PUT    /api/projects/:id                → projects.update(id, data)
+ *   DELETE /api/projects/:id                → projects.delete(id)
+ *   POST   /api/projects/:id/tasks          → tasks.add(projectId, data)
+ *   PUT    /api/projects/:id/tasks/:taskId  → tasks.update(projectId, taskId, data)
+ *   DELETE /api/projects/:id/tasks/:taskId  → tasks.delete(projectId, taskId)
+ *   GET    /api/search?q=query              → search(query)
+ *   GET    /api/storage/info                → storage.getInfo()
+ *   DELETE /api/storage/clear               → storage.clearAll()
+ *   POST   /api/storage/reseed              → storage.reseed()
+ *   GET    /api/storage/export              → storage.exportJSON()
  */
 
 import type { Project, Task, ProjectFormData, TaskFormData } from "@/types/project"
-import { APP_CONFIG } from "@/config"
 
-const STORAGE_KEY = APP_CONFIG.storageKeys.projects
-
-// Simulate network latency (ms) — set to 0 for instant, or 100-300 for realism
-const SIMULATED_DELAY = 150
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
-}
-
-/** Simulate async network delay */
-function delay(ms: number = SIMULATED_DELAY): Promise<void> {
-  if (ms <= 0) return Promise.resolve()
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-/** Read raw data from localStorage */
-function readStore(): Project[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    return JSON.parse(raw) as Project[]
-  } catch {
-    return []
-  }
-}
-
-/** Write data to localStorage */
-function writeStore(projects: Project[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
-}
+// ── Base URL — change this when connecting to a real backend ──
+const BASE_URL = "/api"
 
 // ─── API Response Types ──────────────────────────────────────
 
@@ -64,139 +45,6 @@ export interface ApiError {
   status: number
 }
 
-function ok<T>(data: T, message?: string): ApiResponse<T> {
-  return { data, success: true, message }
-}
-
-function err(message: string, status = 400): ApiError {
-  return { success: false, message, status }
-}
-
-// ─── Projects API ────────────────────────────────────────────
-
-/** GET /api/projects */
-async function getProjects(): Promise<ApiResponse<Project[]>> {
-  await delay()
-  return ok(readStore())
-}
-
-/** GET /api/projects/:id */
-async function getProject(id: string): Promise<ApiResponse<Project> | ApiError> {
-  await delay()
-  const project = readStore().find((p) => p.id === id)
-  if (!project) return err("Project not found", 404)
-  return ok(project)
-}
-
-/** POST /api/projects */
-async function createProject(
-  data: ProjectFormData
-): Promise<ApiResponse<Project>> {
-  await delay()
-  const now = new Date().toISOString()
-  const project: Project = {
-    ...data,
-    id: generateId(),
-    tasks: [],
-    createdAt: now,
-    updatedAt: now,
-  }
-  const all = readStore()
-  all.unshift(project)
-  writeStore(all)
-  return ok(project, "Project created successfully")
-}
-
-/** PUT /api/projects/:id */
-async function updateProject(
-  id: string,
-  data: Partial<ProjectFormData>
-): Promise<ApiResponse<Project> | ApiError> {
-  await delay()
-  const all = readStore()
-  const index = all.findIndex((p) => p.id === id)
-  if (index === -1) return err("Project not found", 404)
-  all[index] = { ...all[index], ...data, updatedAt: new Date().toISOString() }
-  writeStore(all)
-  return ok(all[index], "Project updated successfully")
-}
-
-/** DELETE /api/projects/:id */
-async function deleteProject(id: string): Promise<ApiResponse<null> | ApiError> {
-  await delay()
-  const all = readStore()
-  const filtered = all.filter((p) => p.id !== id)
-  if (filtered.length === all.length) return err("Project not found", 404)
-  writeStore(filtered)
-  return ok(null, "Project deleted successfully")
-}
-
-// ─── Tasks API ───────────────────────────────────────────────
-
-/** POST /api/projects/:id/tasks */
-async function addTask(
-  projectId: string,
-  data: TaskFormData
-): Promise<ApiResponse<Task> | ApiError> {
-  await delay()
-  const all = readStore()
-  const index = all.findIndex((p) => p.id === projectId)
-  if (index === -1) return err("Project not found", 404)
-  const now = new Date().toISOString()
-  const newTask: Task = {
-    ...data,
-    id: generateId(),
-    createdAt: now,
-    updatedAt: now,
-  }
-  all[index].tasks.push(newTask)
-  all[index].updatedAt = now
-  writeStore(all)
-  return ok(newTask, "Task created successfully")
-}
-
-/** PUT /api/projects/:id/tasks/:taskId */
-async function updateTask(
-  projectId: string,
-  taskId: string,
-  data: Partial<TaskFormData>
-): Promise<ApiResponse<Task> | ApiError> {
-  await delay()
-  const all = readStore()
-  const pIndex = all.findIndex((p) => p.id === projectId)
-  if (pIndex === -1) return err("Project not found", 404)
-  const tIndex = all[pIndex].tasks.findIndex((t) => t.id === taskId)
-  if (tIndex === -1) return err("Task not found", 404)
-  const now = new Date().toISOString()
-  all[pIndex].tasks[tIndex] = {
-    ...all[pIndex].tasks[tIndex],
-    ...data,
-    updatedAt: now,
-  }
-  all[pIndex].updatedAt = now
-  writeStore(all)
-  return ok(all[pIndex].tasks[tIndex], "Task updated successfully")
-}
-
-/** DELETE /api/projects/:id/tasks/:taskId */
-async function deleteTask(
-  projectId: string,
-  taskId: string
-): Promise<ApiResponse<null> | ApiError> {
-  await delay()
-  const all = readStore()
-  const pIndex = all.findIndex((p) => p.id === projectId)
-  if (pIndex === -1) return err("Project not found", 404)
-  const before = all[pIndex].tasks.length
-  all[pIndex].tasks = all[pIndex].tasks.filter((t) => t.id !== taskId)
-  if (all[pIndex].tasks.length === before) return err("Task not found", 404)
-  all[pIndex].updatedAt = new Date().toISOString()
-  writeStore(all)
-  return ok(null, "Task deleted successfully")
-}
-
-// ─── Search API ──────────────────────────────────────────────
-
 export interface SearchResult {
   type: "project" | "task"
   id: string
@@ -207,96 +55,78 @@ export interface SearchResult {
   status: string
 }
 
-/** GET /api/search?q=query */
-async function search(query: string): Promise<ApiResponse<SearchResult[]>> {
-  await delay(80) // search should be fast
-  if (!query.trim()) return ok([])
-  const q = query.toLowerCase()
-  const results: SearchResult[] = []
-  const projects = readStore()
+// ─── HTTP helpers ────────────────────────────────────────────
 
-  for (const project of projects) {
-    if (
-      project.name.toLowerCase().includes(q) ||
-      project.description.toLowerCase().includes(q)
-    ) {
-      results.push({
-        type: "project",
-        id: project.id,
-        projectId: project.id,
-        projectName: project.name,
-        title: project.name,
-        description: project.description,
-        status: project.status,
-      })
-    }
-    for (const task of project.tasks) {
-      if (
-        task.title.toLowerCase().includes(q) ||
-        task.description.toLowerCase().includes(q) ||
-        task.assignee.toLowerCase().includes(q)
-      ) {
-        results.push({
-          type: "task",
-          id: task.id,
-          projectId: project.id,
-          projectName: project.name,
-          title: task.title,
-          description: task.description,
-          status: task.status,
-        })
-      }
-    }
+async function get<T>(path: string): Promise<ApiResponse<T>> {
+  const res = await fetch(`${BASE_URL}${path}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw { success: false, message: body.message ?? res.statusText, status: res.status } as ApiError
   }
-  return ok(results.slice(0, 20)) // limit results
+  return res.json()
 }
 
-// ─── Storage Utilities ───────────────────────────────────────
-
-/** GET /api/storage/info */
-async function getStorageInfo(): Promise<
-  ApiResponse<{ size: string; projectCount: number; taskCount: number }>
-> {
-  await delay(50)
-  const all = readStore()
-  const raw = localStorage.getItem(STORAGE_KEY) ?? ""
-  const bytes = new Blob([raw]).size
-  let size: string
-  if (bytes < 1024) size = `${bytes} B`
-  else if (bytes < 1024 * 1024) size = `${(bytes / 1024).toFixed(1)} KB`
-  else size = `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  return ok({
-    size,
-    projectCount: all.length,
-    taskCount: all.reduce((sum, p) => sum + p.tasks.length, 0),
+async function post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
   })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw { success: false, message: data.message ?? res.statusText, status: res.status } as ApiError
+  }
+  return res.json()
 }
 
-/** DELETE /api/storage/clear */
-async function clearAllData(): Promise<ApiResponse<null>> {
-  await delay()
-  localStorage.removeItem(STORAGE_KEY)
-  return ok(null, "All data cleared")
+async function put<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw { success: false, message: data.message ?? res.statusText, status: res.status } as ApiError
+  }
+  return res.json()
 }
 
-// ─── Export as namespaced API ────────────────────────────────
+async function del<T>(path: string): Promise<ApiResponse<T>> {
+  const res = await fetch(`${BASE_URL}${path}`, { method: "DELETE" })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw { success: false, message: data.message ?? res.statusText, status: res.status } as ApiError
+  }
+  return res.json()
+}
+
+// ─── Export as namespaced API (same interface as before) ─────
 
 export const api = {
   projects: {
-    getAll: getProjects,
-    getById: getProject,
-    create: createProject,
-    update: updateProject,
-    delete: deleteProject,
+    getAll: () => get<Project[]>("/projects"),
+    getById: (id: string) => get<Project>(`/projects/${id}`),
+    create: (data: ProjectFormData) => post<Project>("/projects", data),
+    update: (id: string, data: Partial<ProjectFormData>) =>
+      put<Project>(`/projects/${id}`, data),
+    delete: (id: string) => del<null>(`/projects/${id}`),
   },
   tasks: {
-    add: addTask,
-    update: updateTask,
-    delete: deleteTask,
+    add: (projectId: string, data: TaskFormData) =>
+      post<Task>(`/projects/${projectId}/tasks`, data),
+    update: (projectId: string, taskId: string, data: Partial<TaskFormData>) =>
+      put<Task>(`/projects/${projectId}/tasks/${taskId}`, data),
+    delete: (projectId: string, taskId: string) =>
+      del<null>(`/projects/${projectId}/tasks/${taskId}`),
   },
-  search,
+  search: (query: string) =>
+    get<SearchResult[]>(`/search?q=${encodeURIComponent(query)}`),
   storage: {
-    getInfo: getStorageInfo,
-    clearAll: clearAllData,
+    getInfo: () =>
+      get<{ size: string; projectCount: number; taskCount: number }>("/storage/info"),
+    clearAll: () => del<null>("/storage/clear"),
+    reseed: () => post<null>("/storage/reseed"),
+    exportJSON: () => get<string>("/storage/export"),
   },
 } as const

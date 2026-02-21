@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
 import { api } from "@/services/api"
-import { seedIfEmpty } from "@/services/seedData"
 import { useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -44,16 +43,14 @@ export default function SettingsPage() {
 
   const handleReseed = async () => {
     setIsSeeding(true)
-    await api.storage.clearAll()
-    // Force seed by clearing then calling seedIfEmpty
-    seedIfEmpty()
+    await api.storage.reseed()
     await refreshData()
     setIsSeeding(false)
   }
 
-  const handleExportData = () => {
-    const raw = localStorage.getItem("projecthub_projects") ?? "[]"
-    const blob = new Blob([raw], { type: "application/json" })
+  const handleExportData = async () => {
+    const res = await api.storage.exportJSON()
+    const blob = new Blob([res.data], { type: "application/json" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
@@ -92,7 +89,7 @@ export default function SettingsPage() {
           <CardContent className="p-5 space-y-4">
             <SettingRow label="Application" value="ProjectHub" />
             <SettingRow label="Version" value="1.0.0" />
-            <SettingRow label="API Layer" value="Virtual REST API (localStorage)" />
+            <SettingRow label="API Layer" value="REST API (MSW + In-Memory Store)" />
             <SettingRow label="Total Projects" value={String(storageInfo.projectCount)} />
             <SettingRow label="Total Issues" value={String(storageInfo.taskCount)} />
           </CardContent>
@@ -105,12 +102,12 @@ export default function SettingsPage() {
             <CardTitle className="text-sm">Data & Storage</CardTitle>
           </CardHeader>
           <CardContent className="p-5 space-y-4">
-            <SettingRow label="Storage Type" value="Local Storage (Browser)" />
+            <SettingRow label="Storage Type" value="In-Memory (Application RAM)" />
             <SettingRow label="Data Size" value={storageInfo.size} />
             <div className="pt-2 space-y-3">
               <p className="text-xs text-muted-foreground">
-                All data is stored locally in your browser via a virtual REST API layer.
-                Clearing your browser data will remove all projects and issues.
+                Data is stored in application memory via a REST API (like Java/Spring).
+                Data resets on page refresh — just like restarting a server.
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportData}>

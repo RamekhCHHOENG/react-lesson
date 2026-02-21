@@ -1,7 +1,4 @@
 import type { Project } from "@/types/project"
-import { APP_CONFIG } from "@/config"
-
-const STORAGE_KEY = APP_CONFIG.storageKeys.projects
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
@@ -15,7 +12,12 @@ function daysFromNow(days: number): string {
   return d.toISOString().split("T")[0]
 }
 
-const SEED_PROJECTS: Project[] = [
+/**
+ * Creates a fresh set of seed projects with new IDs.
+ * Called by the in-memory database on initialization and re-seed.
+ */
+export function createSeedProjects(): Project[] {
+  return [
   {
     id: generateId(),
     name: "Website Redesign",
@@ -276,12 +278,5 @@ const SEED_PROJECTS: Project[] = [
     createdAt: now,
     updatedAt: now,
   },
-]
-
-/** Call this once on app boot — only seeds if storage is empty. */
-export function seedIfEmpty(): void {
-  const existing = localStorage.getItem(STORAGE_KEY)
-  if (!existing || existing === "[]") {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_PROJECTS))
-  }
+  ]
 }

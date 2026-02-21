@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useReducer, type ReactNode } from "react"
 import {
  projectReducer,
  initialProjectState,
@@ -16,9 +16,7 @@ const ProjectContext = createContext<ProjectContextValue | undefined>(undefined)
 export function ProjectProvider({ children }: { children: ReactNode }) {
  const [state, dispatch] = useReducer(projectReducer, initialProjectState)
 
- useEffect(() => {
- dispatch({ type: "LOAD_PROJECTS" })
- }, [])
+ // No more localStorage read — React Query fetches from the API on mount
 
  return (
  <ProjectContext.Provider value={{ state, dispatch }}>
