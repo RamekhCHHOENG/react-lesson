@@ -155,6 +155,7 @@ class RegistrationForm extends React.Component<
    * Lesson: "Always use setState."
    */
   handleFieldChange = (field: keyof EmployeeFormData) => (value: string) => {
+    console.log(`[RegistrationForm] Field changed: ${field} =`, value);
     this.setState((prevState) => ({
       formData: { ...prevState.formData, [field]: value },
       errors: [], // clear errors on change

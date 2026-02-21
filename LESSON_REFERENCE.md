@@ -1,78 +1,178 @@
 # 📚 Lesson Reference — React Components, Props, State & Lifecycle
 
-> **Use this document to answer every "WHY?" question the teacher may ask during the demo.**
+> **This document explains every decision in the code with actual code snippets.**
+> Use it to answer any "WHY?" question the teacher asks during demo.
 
 ---
 
-## 🗂️ 1. Project Folder Structure — WHY?
+## 🗂️ 1. Folder Structure — WHY This Organization?
 
 ```
-/src
-  ├── /assets/        → Static files (images, fonts). Keeps binary files separate from code.
-  ├── /components/    → Reusable UI pieces (InputField, SelectField, RadioGroup, Card, CardImage).
-  ├── /features/      → Feature-specific modules. Keeps related logic together (feature-folder pattern).
-  ├── /hooks/         → Custom React hooks (useFormField). Extracts reusable logic from components.
-  ├── /layouts/       → Shared layout (MainLayout with header/footer). Pages swap inside the layout.
-  ├── /pages/         → Page-level components mapped to routes (RegistrationForm).
-  ├── /services/      → API calls (registerEmployee). Decouples network logic from UI.
-  ├── /store/         → Global state management. Placeholder for Redux/Zustand/Context.
-  ├── /styles/        → CSS files grouped by component. One file per component = easy to find.
-  ├── /types/         → TypeScript interfaces & types. Single source of truth for data shapes.
-  ├── /utils/         → Pure helper functions (validation). No side-effects, easy to test.
-  ├── /config/        → App configuration, environment variables.
-  ├── App.tsx         → Root component that assembles everything.
-  ├── main.tsx        → Entry point — renders <App /> into the DOM.
-  └── router.tsx      → React Router setup — maps URLs to pages.
+src/
+  ├── assets/        → Static files (images, fonts)
+  ├── components/    → Reusable UI components (InputField, SelectField, RadioGroup, Card, CardImage)
+  ├── config/        → Environment variables and app configuration
+  ├── features/      → Feature-specific modules (placeholder for future growth)
+  ├── hooks/         → Custom React hooks (useFormField)
+  ├── layouts/       → Shared layout wrappers (MainLayout with header, footer, nav)
+  ├── pages/         → Page-level components mapped to routes (RegistrationForm, CreateEmployee)
+  ├── services/      → API calls — decouples network logic from UI
+  ├── store/         → Global state management (placeholder for Redux/Zustand/Context)
+  ├── styles/        → CSS files — one per component
+  ├── types/         → TypeScript interfaces & types
+  ├── utils/         → Pure helper functions (validation)
+  ├── App.tsx        → Root component
+  ├── main.tsx       → Entry point — renders <App /> into the DOM
+  └── router.tsx     → React Router setup — maps URLs to pages
 ```
 
-**Teacher Q:** *"Why separate folders for components, pages, and layouts?"*
-**Answer:** Separation of concerns. Components are *reusable building blocks*, pages are *route-level views*, and layouts are *shared wrappers* (header/footer). This structure scales well — when the app grows, each file is easy to locate.
+**Q: Why separate folders for components, pages, and layouts?**
+
+> Separation of concerns. Components are **reusable building blocks** (used in multiple pages). Pages are **route-level views** (one per URL). Layouts are **shared wrappers** (header/footer stay the same while page content swaps). This structure scales well.
 
 ---
 
-## 🧩 2. Components — WHAT & WHY?
+## 🧩 2. Components — Stateless vs Stateful
 
-### What are components?
-> "Components are the building blocks of any React app. Components let you split the UI into independent, reusable pieces."
+### Lesson Theory:
+> "There are 2 main kinds of components: **Stateless** and **Stateful** Component."
+> - Stateless Component (Functional Component): have no state.
+> - Stateful Component (Class Component): can hold state.
 
-### Two kinds:
+### What We Built:
 
-| Kind | Also Called | Has State? | Our Examples |
-|------|-----------|-----------|-------------|
-| **Stateless** | Functional Component | ❌ No | `InputField`, `SelectField`, `RadioGroup`, `StatelessCard`, `CardImage`, `MainLayout` |
-| **Stateful** | Class Component | ✅ Yes | `RegistrationForm`, `StatefulCard` |
+| Component | Type | File | Why This Type? |
+|-----------|------|------|---------------|
+| `InputField` | **Stateless** (Functional) | `components/InputField.tsx` | Only displays a value from props and reports changes — no own data |
+| `SelectField` | **Stateless** (Functional) | `components/SelectField.tsx` | Same — renders options from props, reports selection |
+| `RadioGroup` | **Stateless** (Functional) | `components/RadioGroup.tsx` | Same — renders radio buttons from props |
+| `StatelessCard` | **Stateless** (Functional) | `components/Card.tsx` | Lesson Exercise 1 — displays title + description |
+| `CardImage` | **Stateless** (Functional) | `components/CardImage.tsx` | Lesson Exercise 2 — displays imageUrl, title, description |
+| `StatefulCard` | **Stateful** (Class) | `components/Card.tsx` | Lesson Exercise 1 — same props but also tracks click count in state |
+| `RegistrationForm` | **Stateful** (Class) | `pages/RegistrationForm.tsx` | Owns all form data in state, demonstrates lifecycle |
+| `CreateEmployee` | **Stateful** (Class) | `pages/CreateEmployee.tsx` | Same logic, fancy UI — reuses same child components |
 
-**Teacher Q:** *"Why did you make InputField a functional/stateless component?"*
-**Answer:** InputField doesn't own any data. Its `value` comes from the parent's state via props, and it reports changes back through `onChange`. It only *displays* and *notifies* — no internal state needed, so a stateless functional component is the simplest and most efficient choice.
+### Code: Stateless Component (InputField)
 
-**Teacher Q:** *"Why did you make RegistrationForm a class/stateful component?"*
-**Answer:** The form owns all the field data (`firstName`, `email`, `password`, etc.) in its internal state. It also demonstrates the full component lifecycle (constructor, componentDidMount, shouldComponentUpdate, componentDidUpdate, componentWillUnmount), which are class-component features covered in the lesson.
+```tsx
+// components/InputField.tsx
+const InputField: React.FC<InputFieldProps> = ({
+  type,
+  placeholder,
+  value,       // ← comes from parent's STATE, passed as PROP
+  onChange,    // ← callback to parent, passed as PROP
+  required = true,  // ← default prop value
+  name,
+}) => {
+  return (
+    <input
+      type={type}
+      name={name}
+      placeholder={`${placeholder}${required ? " *" : ""}`}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+    />
+  );
+};
+```
+
+**Q: Why is InputField a functional/stateless component?**
+
+> It doesn't own any data. Its `value` comes from the parent's state via props, and it reports changes back through `onChange`. It only **displays** and **notifies** — no internal state needed. A stateless functional component is the simplest choice.
+
+### Code: Stateful Component (RegistrationForm / CreateEmployee)
+
+```tsx
+// pages/CreateEmployee.tsx (same pattern in RegistrationForm.tsx)
+class CreateEmployee extends React.Component<{}, CreateEmployeeState> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      formData: {
+        firstName: "",
+        lastName: "",
+        // ... all form fields
+      },
+      errors: [],
+      submitted: false,
+    };
+  }
+  // ...
+}
+```
+
+**Q: Why is the form a class/stateful component?**
+
+> The form **owns** all the field data (firstName, email, password, etc.) in its internal state. It also needs to demonstrate the **full component lifecycle** (constructor, componentDidMount, shouldComponentUpdate, componentDidUpdate, componentWillUnmount), which are class-component features covered in the lesson.
 
 ---
 
-## 📦 3. Props — WHAT & WHY?
+## 📦 3. Props — Data Passed from Parent to Child
 
+### Lesson Theory:
 > "Props are set by the parent and they are fixed throughout the lifetime of a component."
+> "Most components can be customized when they are created, with different parameters. These creation parameters are called props."
 
-### How we use Props:
+### How Props Flow in Our App:
 
 ```
-RegistrationForm (parent, owns the state)
-  └── passes props to → InputField ({ type, placeholder, value, onChange, name })
-  └── passes props to → SelectField ({ value, onChange, options, placeholder })
+CreateEmployee (PARENT — owns the state)
+  │
+  ├── passes props to → InputField ({ type, placeholder, value, onChange, name })
+  ├── passes props to → SelectField ({ value, onChange, options, placeholder })
   └── passes props to → RadioGroup ({ name, value, onChange, options })
 ```
 
-**Teacher Q:** *"Why pass value and onChange as props instead of letting InputField manage its own state?"*
-**Answer:** This is the **Controlled Component** pattern. The parent (RegistrationForm) is the *single source of truth* for all form data. The child (InputField) just renders what it receives and reports user input back. This makes validation, submission, and state management much easier because all data lives in one place.
-
-### PropTypes (Runtime Validation)
-
-> "PropTypes exports a range of validators to make sure the data you receive is valid."
-
-Every component has `propTypes` defined. Example from `InputField`:
+### Code: Parent Passing Props to Child
 
 ```tsx
+// In CreateEmployee.tsx render():
+<InputField
+  type="text"              // ← prop: what kind of input
+  name="firstName"         // ← prop: HTML name attribute
+  placeholder="e.g. John"  // ← prop: placeholder text
+  value={formData.firstName}  // ← prop: comes from this component's STATE
+  onChange={this.handleFieldChange("firstName")}  // ← prop: callback function
+/>
+```
+
+**Q: Why pass `value` and `onChange` as props instead of letting InputField manage its own state?**
+
+> This is the **Controlled Component** pattern. The parent (CreateEmployee) is the **single source of truth** for all form data. The child (InputField) just renders what it receives and reports user input back. This makes validation, submission, and state management much easier because all data lives in one place.
+
+### Code: Defining Props with TypeScript Types
+
+```tsx
+// types/employee.ts
+export interface InputFieldProps {
+  type: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;   // ← optional prop (has default)
+  name: string;
+}
+```
+
+**Q: Why define types in a separate `/types/` folder?**
+
+> Single source of truth. If multiple components use the same data shape (like `EmployeeFormData`), defining it once in `/types/` prevents duplication and keeps all component contracts in one place.
+
+---
+
+## 🛡️ 4. PropTypes — Runtime Validation
+
+### Lesson Theory:
+> "PropTypes exports a range of validators that can be used to make sure the data you receive is valid."
+> "propTypes is only checked in development mode."
+
+### Code: PropTypes on InputField
+
+```tsx
+// components/InputField.tsx
+import PropTypes from "prop-types";
+
 InputField.propTypes = {
   type: PropTypes.string.isRequired,
   placeholder: PropTypes.string.isRequired,
@@ -83,160 +183,361 @@ InputField.propTypes = {
 };
 ```
 
-**Teacher Q:** *"We already have TypeScript. Why also use PropTypes?"*
-**Answer:** TypeScript checks types at *compile time* (when we build). PropTypes checks at *runtime* (in the browser console). If a parent accidentally passes a wrong type at runtime, PropTypes will show a warning. The lesson specifically mentions PropTypes, so we include both.
+**Q: We already have TypeScript. Why also use PropTypes?**
 
-### Default Props
+> TypeScript checks types at **compile time** (when we build). PropTypes checks at **runtime** (in the browser console). If a parent accidentally passes a wrong type at runtime, PropTypes will show a warning. The lesson specifically requires PropTypes.
 
-> "You can define default values for your props by assigning to the special defaultProps property."
+### Code: Default Props
 
 ```tsx
-InputField.defaultProps = {
-  required: true,
-  type: "text",
+// In the function signature (modern approach):
+const InputField: React.FC<InputFieldProps> = ({
+  type,
+  placeholder,
+  value,
+  onChange,
+  required = true,   // ← DEFAULT VALUE: if parent doesn't pass it, defaults to true
+  name,
+}) => { ... };
+```
+
+> Lesson: "You can define default values for your props." So parent doesn't have to pass every prop every time.
+
+---
+
+## 🔄 5. State — Data Owned by the Component
+
+### Lesson Theory:
+> "State is data maintained inside a component. It is local or owned by that specific component. The component itself will update the state using the setState() function."
+
+### Code: Initialising State in constructor()
+
+```tsx
+// pages/CreateEmployee.tsx
+constructor(props) {
+  super(props);
+  this.state = {
+    formData: {
+      firstName: "",
+      lastName: "",
+      password: "",
+      confirmPassword: "",
+      email: "",
+      phone: "",
+      securityQuestion: "",
+      securityAnswer: "",
+      gender: "male",
+    },
+    errors: [],
+    submitted: false,
+    submittedData: null,
+  };
+}
+```
+
+**Q: Why does the form data live in state?**
+
+> Because form data **changes** when the user types. State is for data that is "local or owned by that specific component" and is **changeable**. No parent or sibling needs to own this data.
+
+### Code: Updating State with setState()
+
+```tsx
+// pages/CreateEmployee.tsx
+handleFieldChange = (field: keyof EmployeeFormData) => (value: string) => {
+  console.log(`[CreateEmployee] Field changed: ${field} =`, value);
+  this.setState((prevState) => ({
+    formData: { ...prevState.formData, [field]: value },
+    errors: [],
+  }));
 };
 ```
 
-**Teacher Q:** *"Why use defaultProps?"*
-**Answer:** So the parent doesn't have to pass every prop every time. If `required` isn't specified, it defaults to `true`. This reduces boilerplate when calling the component.
+### ⚠️ setState Rules (from the lesson):
+
+**Rule 1: Never mutate state directly**
+```tsx
+// ❌ DO NOT DO THIS — React won't re-render!
+this.state.formData.firstName = "John";
+```
+
+**Rule 2: Always use setState()**
+```tsx
+// ✅ CORRECT
+this.setState((prevState) => ({
+  formData: { ...prevState.formData, firstName: "John" },
+}));
+```
+
+**Q: Why use the callback form `(prevState) => ...` instead of passing an object?**
+
+> Because `setState` is **asynchronous**. If we reference `this.state` directly, it might be stale (React may batch multiple setState calls). The callback `(prevState) => ...` always gives us the latest previous state.
 
 ---
 
-## 🔄 4. State — WHAT & WHY?
+## ⏳ 6. Component Lifecycle — Mounting, Updating, Unmounting
 
-> "State is data maintained inside a component. It is local or owned by that specific component. The component itself will update the state using the setState() function."
+### Lesson Theory:
+> **Mounting:** constructor() → static getDerivedStateFromProps() → render() → componentDidMount()
+> **Updating:** static getDerivedStateFromProps() → shouldComponentUpdate() → render() → getSnapshotBeforeUpdate() → componentDidUpdate()
+> **Unmounting:** componentWillUnmount()
 
-### Where State lives:
+### Code: Full Lifecycle in CreateEmployee
 
-| Component | State Data | Why Here? |
-|-----------|-----------|-----------|
-| `RegistrationForm` | `formData`, `errors`, `submitted` | This component owns the form; no parent needs this data |
-| `StatefulCard` | `renderCount`, `mountedAt` | Demonstrates that class components can track internal data |
+#### 🟢 MOUNTING: constructor()
+```tsx
+constructor(props) {
+  super(props);
+  this.state = { formData: { ... }, errors: [], submitted: false };
+  console.log("[CreateEmployee] constructor() — state initialised");
+}
+```
+> **Called first** when the component is being created. We initialise state here — before any rendering.
 
-### setState() Rules (from the lesson):
+#### 🟢 MOUNTING: componentDidMount()
+```tsx
+componentDidMount(): void {
+  console.log("[CreateEmployee] componentDidMount() — component is in the DOM");
+  document.title = "Create Employee — Premium";
+}
+```
+> **Called once after first render.** The component is now in the DOM. This is the right place for **side-effects**: API calls, subscriptions, DOM manipulation.
 
-1. **Never mutate state directly:**
-   ```tsx
-   // ❌ DO NOT DO THIS
-   this.state.count = this.state.count + 1;
-   ```
-   React can't detect direct mutations, so the component won't re-render.
+**Q: Why set document.title in componentDidMount instead of constructor?**
 
-2. **Always use setState:**
-   ```tsx
-   // ✅ CORRECT — use callback form with prevState
-   this.setState((prevState) => ({
-     renderCount: prevState.renderCount + 1,
-   }));
-   ```
-   We use the *callback form* `(prevState) => ...` because it safely references the previous value (important when multiple setState calls queue up).
+> The constructor runs **before** the component is in the DOM. `componentDidMount` runs **after** — it's the right place for side-effects like DOM manipulation or API calls.
 
-**Teacher Q:** *"Why use the callback form of setState instead of just passing an object?"*
-**Answer:** Because setState is *asynchronous*. If we reference `this.state.count` directly, it might be stale. The callback `(prevState) => ...` always gives us the latest previous state.
+#### 🟡 UPDATING: shouldComponentUpdate()
+```tsx
+shouldComponentUpdate(_nextProps, nextState): boolean {
+  console.log("[CreateEmployee] shouldComponentUpdate()");
+  if (
+    this.state.formData === nextState.formData &&
+    this.state.errors === nextState.errors &&
+    this.state.submitted === nextState.submitted
+  ) {
+    return false;  // ← Skip re-render, nothing changed
+  }
+  return true;
+}
+```
+> **Performance optimisation.** By default React re-renders on every setState. We compare old vs new state and skip unnecessary renders by returning `false`.
+
+#### 🟡 UPDATING: componentDidUpdate()
+```tsx
+componentDidUpdate(_prevProps, prevState): void {
+  if (prevState.submitted !== this.state.submitted && this.state.submitted) {
+    console.log("[CreateEmployee] componentDidUpdate() — form was submitted!");
+  }
+}
+```
+> **Called after every re-render.** We use it to react to state changes — e.g., log when the form transitions to "submitted".
+
+#### 🔴 UNMOUNTING: componentWillUnmount()
+```tsx
+componentWillUnmount(): void {
+  console.log("[CreateEmployee] componentWillUnmount() — cleaning up");
+  document.title = "React App";
+}
+```
+> **Called when the component is removed from the DOM.** We clean up side-effects (reset document.title). If we had timers or subscriptions from componentDidMount, we'd clear them here.
+
+**Q: Why do we need componentWillUnmount?**
+
+> To **prevent memory leaks**. Lesson: *"don't forget to unsubscribe in componentWillUnmount()."* If we set up a timer, event listener, or subscription in componentDidMount, we must tear it down here.
 
 ---
 
-## ⏳ 5. Component Lifecycle — WHAT & WHY?
+## ⚖️ 7. State vs Props — The Key Difference
 
-### Mounting (component created → inserted into DOM)
+### Lesson Theory:
+> **State:** created in the component, is changeable.
+> **Props:** created from parents, should not change.
 
-| Method | Where We Use It | Why |
-|--------|----------------|-----|
-| `constructor()` | `RegistrationForm`, `StatefulCard` | Initialise state (`this.state = {...}`) before any render |
-| `render()` | Both | Returns JSX — tells React what to display |
-| `componentDidMount()` | Both | Runs once after first render. Perfect for API calls, subscriptions, setting `document.title` |
+### In Our Code:
 
-**Teacher Q:** *"Why do you set document.title in componentDidMount instead of constructor?"*
-**Answer:** The constructor runs before the component is in the DOM. `componentDidMount` runs after — it's the right place for side-effects like DOM manipulation, API calls, or subscriptions.
-
-### Updating (re-render caused by props or state change)
-
-| Method | Where We Use It | Why |
-|--------|----------------|-----|
-| `shouldComponentUpdate()` | `RegistrationForm` | Optimisation: we can skip re-renders if nothing actually changed |
-| `render()` | Both | Re-renders with new state/props |
-| `componentDidUpdate()` | Both | Reacts to changes after re-render (e.g., log when form is submitted) |
-
-**Teacher Q:** *"Why use shouldComponentUpdate?"*
-**Answer:** Performance. By default React re-renders on every setState. `shouldComponentUpdate` lets us compare old vs new state and skip unnecessary renders. In our form, if formData and errors haven't changed, we return `false`.
-
-### Unmounting (component removed from DOM)
-
-| Method | Where We Use It | Why |
-|--------|----------------|-----|
-| `componentWillUnmount()` | Both | Clean up: clear timers, cancel subscriptions, reset document.title |
-
-**Teacher Q:** *"Why do you need componentWillUnmount?"*
-**Answer:** To prevent memory leaks. If we set up a timer, event listener, or subscription in `componentDidMount`, we must tear it down in `componentWillUnmount`. The lesson says: *"don't forget to unsubscribe in componentWillUnmount()."*
-
----
-
-## ⚖️ 6. State vs Props
+```
+CreateEmployee (STATEFUL — owns formData in STATE)
+  │
+  │  this.state.formData.firstName = "John"   ← STATE (changeable)
+  │
+  └── <InputField value={formData.firstName} />  ← PROP (read-only for InputField)
+```
 
 | | **State** | **Props** |
 |---|-----------|-----------|
-| Created by | The component itself | The parent component |
-| Changeable? | ✅ Yes (via setState) | ❌ No (read-only) |
-| Where? | `RegistrationForm.state.formData` | `InputField` receives `value`, `onChange` |
-| Purpose | Component's own mutable data | Configuration passed from parent |
+| Where created | `CreateEmployee` constructor | `CreateEmployee` passes to `InputField` |
+| Changeable? | ✅ Yes — via `setState()` | ❌ No — read-only for the child |
+| Example | `this.state.formData.firstName` | `<InputField value={formData.firstName} />` |
 
-**Teacher Q:** *"What's the difference between State and Props?"*
-**Answer (from lesson):**
-- **State**: created in the component, is changeable.
-- **Props**: created from parents, should not change.
+**Q: What happens when the user types in the input?**
 
-In our app: `RegistrationForm` creates `formData` as *state*. It then passes `formData.firstName` down to `InputField` as a *prop*. InputField can't modify it — it can only call `onChange` to ask the parent to update its state.
+1. User types → `InputField` fires `onChange(newValue)` (prop callback)
+2. `CreateEmployee.handleFieldChange` runs → calls `this.setState(...)` (state update)
+3. React re-renders `CreateEmployee` → passes new `value` prop to `InputField`
+4. `InputField` displays the new value
 
----
-
-## 🏋️ 7. Lesson Exercises — How We Fulfilled Them
-
-### Exercise 1: Card with title + description as props (Stateless AND Stateful)
-- **StatelessCard** (`/components/Card.tsx`) — Functional component, no state, receives `title` and `description` via props.
-- **StatefulCard** (`/components/Card.tsx`) — Class component, has `renderCount` and `mountedAt` in state, also receives `title` and `description` via props. Demonstrates full lifecycle.
-
-### Exercise 2: CardImage with imageUrl, title, description as props
-- **CardImage** (`/components/CardImage.tsx`) — Stateless functional component. Receives `imageUrl`, `title`, `description` via props. Purely presentational.
-
-### Exercise 3 (Main Exercise): Employee Registration Form
-- **RegistrationForm** (`/pages/RegistrationForm.tsx`) — Stateful class component. Demonstrates state, setState, lifecycle, composition with child components via props, validation using utils.
+> The child **never** changes the value directly. It asks the parent to update state, and the parent passes the new value back down as a prop. This is **one-way data flow**.
 
 ---
 
-## 🚀 8. How to Run
+## 🏋️ 8. Lesson Exercises — How We Fulfilled Them
+
+### Exercise 1: Card with title + description (Stateless AND Stateful)
+
+```tsx
+// Stateless Card — components/Card.tsx
+export const StatelessCard: React.FC<CardProps> = ({ title, description }) => {
+  return (
+    <div className="card">
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  );
+};
+
+// Stateful Card — same file
+export class StatefulCard extends React.Component<CardProps, StatefulCardState> {
+  constructor(props) {
+    super(props);
+    this.state = { renderCount: 0, mountedAt: "" };
+  }
+  componentDidMount() {
+    this.setState({ mountedAt: new Date().toLocaleTimeString() });
+  }
+  handleClick = () => {
+    this.setState((prevState) => ({ renderCount: prevState.renderCount + 1 }));
+  };
+  render() {
+    return (
+      <div className="card">
+        <h3>{this.props.title}</h3>
+        <p>{this.props.description}</p>
+        <p>Clicks: {this.state.renderCount}</p>
+        <button onClick={this.handleClick}>Click me</button>
+      </div>
+    );
+  }
+}
+```
+
+### Exercise 2: CardImage with imageUrl, title, description
+
+```tsx
+// components/CardImage.tsx
+const CardImage: React.FC<CardImageProps> = ({ imageUrl, title, description }) => {
+  return (
+    <div className="card">
+      <img src={imageUrl} alt={title} />
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  );
+};
+```
+
+### Exercise 3: Employee Registration Form (Main Exercise)
+
+Two versions:
+- **`/`** — Basic form (`RegistrationForm.tsx`) — matches the exercise screenshot exactly
+- **`/create-employee`** — Fancy form (`CreateEmployee.tsx`) — same logic, premium glassmorphism UI
+
+Both demonstrate: State, setState, Props, PropTypes, lifecycle methods, composition.
+
+---
+
+## 🎨 9. Two Routes — WHY Two Versions?
+
+| Route | Page | UI Style |
+|-------|------|----------|
+| `/` | `RegistrationForm` | Simple — matches exercise screenshot |
+| `/create-employee` | `CreateEmployee` | Premium glassmorphism + progress bar + animations |
+
+**Q: Why two versions?**
+
+> Both use the **exact same components** (InputField, SelectField, RadioGroup) and the **same lesson concepts**. This proves that components are truly reusable — the same building blocks produce completely different-looking UIs depending on styling and layout.
+
+### Code: Router Setup
+
+```tsx
+// router.tsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { RegistrationForm, CreateEmployee } from "./pages";
+
+<BrowserRouter>
+  <MainLayout>
+    <Routes>
+      <Route path="/" element={<RegistrationForm />} />
+      <Route path="/create-employee" element={<CreateEmployee />} />
+    </Routes>
+  </MainLayout>
+</BrowserRouter>
+```
+
+**Q: Why use React Router?**
+
+> Client-side navigation — the page doesn't reload when switching between `/` and `/create-employee`. The Layout stays constant while only the page content swaps.
+
+---
+
+## 🔧 10. Utils — Pure Helper Functions
+
+```tsx
+// utils/validation.ts
+export function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function doPasswordsMatch(password: string, confirm: string): boolean {
+  return password === confirm;
+}
+```
+
+**Q: Why put validation in `/utils/` instead of inside the component?**
+
+> Pure functions with no side-effects are easy to test and reuse. Both `RegistrationForm` and `CreateEmployee` import the same validation functions — no code duplication.
+
+---
+
+## 🚀 11. How to Run
 
 ```bash
 cd react-lesson
 npm install
-npm run dev
+npm run dev          # Development server at http://localhost:5173
+npm run build        # Production build → dist/
+npm run preview      # Preview production build
 ```
 
-Open http://localhost:5173 in the browser.
-
 **Open browser DevTools → Console** to see lifecycle logs:
-- `[RegistrationForm] constructor()`
-- `[RegistrationForm] componentDidMount()`
-- `[RegistrationForm] shouldComponentUpdate()`
-- `[RegistrationForm] componentDidUpdate()`
-- `[StatefulCard] constructor()`
-- etc.
+```
+[CreateEmployee] constructor() — state initialised
+[CreateEmployee] componentDidMount() — component is in the DOM
+[CreateEmployee] shouldComponentUpdate()
+[CreateEmployee] Field changed: firstName = John
+[CreateEmployee] componentDidUpdate() — form was submitted!
+```
+
+Navigate between pages to see `componentWillUnmount()` fire.
 
 ---
 
-## 📋 Quick Answer Cheat-Sheet
+## 📋 12. Quick Answer Cheat-Sheet
 
 | Question | Answer |
 |----------|--------|
-| Why Vite? | Fast dev server, instant HMR, recommended by React team |
+| Why Vite? | Fast dev server with instant HMR, recommended by React team |
 | Why TypeScript? | Catches type errors at compile time |
 | Why PropTypes + TypeScript? | TS = compile-time, PropTypes = runtime warnings |
 | Why Class Components? | To demonstrate lifecycle methods (lesson requirement) |
+| Why Functional Components for inputs? | They have no state — only display props |
 | Why Controlled Inputs? | Parent owns state = single source of truth |
-| Why separate /utils/? | Pure functions, no side-effects, easy to test |
-| Why /services/ for API? | Decouples network logic from UI components |
-| Why /layouts/? | Shared UI (header/footer) wraps all pages |
-| Why /types/? | Single source of truth for all data shapes |
-| Why BrowserRouter? | Enables client-side navigation without page reload |
-| Why callback form of setState? | Prevents stale state references (setState is async) |
+| Why callback form of setState? | Prevents stale state (setState is async) |
 | Why componentDidMount for side-effects? | Runs after DOM is ready; constructor is too early |
 | Why componentWillUnmount? | Prevents memory leaks from subscriptions/timers |
+| Why shouldComponentUpdate? | Performance — skip re-render if nothing changed |
+| Why `/utils/` for validation? | Pure functions, no side-effects, easy to test + reuse |
+| Why `/types/` folder? | Single source of truth for data shapes |
+| Why `/layouts/`? | Shared header/footer wraps all pages |
+| Why React Router? | Client-side navigation without page reload |
+| Why two form pages? | Proves components are reusable — same parts, different UI |
+| State vs Props? | State = owned by component, changeable. Props = from parent, read-only |

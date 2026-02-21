@@ -19,6 +19,7 @@
  */
 
 import React from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 interface MainLayoutProps {
@@ -33,6 +34,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <h1 className="layout__logo">
           <span className="layout__logo--red">Exercise</span>
         </h1>
+        <nav className="layout__nav">
+          <Link to="/" className="layout__link">Basic Form</Link>
+          <Link to="/create-employee" className="layout__link layout__link--fancy">✨ Create Employee</Link>
+        </nav>
       </header>
 
       {/* Page Content */}
