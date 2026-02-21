@@ -1,5 +1,13 @@
 export { default as InputField } from "./InputField";
 export { default as SelectField } from "./SelectField";
 export { default as RadioGroup } from "./RadioGroup";
+export { default as CheckboxField } from "./CheckboxField";
+export { default as DateField } from "./DateField";
+export { default as TextAreaField } from "./TextAreaField";
+export { default as FileField } from "./FileField";
+export { default as PersonalInfoSection } from "./PersonalInfoSection";
+export { default as EducationSection } from "./EducationSection";
+export { default as WorkExperienceSection } from "./WorkExperienceSection";
+export { default as OtherInfoSection } from "./OtherInfoSection";
 export { StatelessCard, StatefulCard } from "./Card";
 export { default as CardImage } from "./CardImage";

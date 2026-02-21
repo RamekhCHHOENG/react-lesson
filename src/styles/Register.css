@@ -1,0 +1,374 @@
+/* ═══════════════════════════════════════
+ * Register Page — Clean Modern Styles
+ * ═══════════════════════════════════════ */
+
+.reg {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+}
+
+/* ── Card ── */
+.reg__card {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 2rem 2.25rem;
+  height: fit-content;
+}
+
+/* ── Header ── */
+.reg__header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.reg__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+/* ── Sections ── */
+.reg__section {
+  margin-bottom: 1.5rem;
+}
+
+.reg__section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid #e8e8e8;
+}
+
+/* ── Grid rows ── */
+.reg__row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.reg__col {
+  flex: 1;
+  min-width: 0;
+}
+
+.reg__col--full {
+  flex: 1 1 100%;
+}
+
+.reg__col--sm {
+  flex: 0 0 110px;
+}
+
+/* ── Labels ── */
+.reg__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0.3rem;
+}
+
+/* ── Shared input overrides ── */
+.reg .input-field__input,
+.reg .select-field__select,
+.reg .date-field__input,
+.reg .textarea-field__input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #333;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.reg .input-field__input:focus,
+.reg .select-field__select:focus,
+.reg .date-field__input:focus,
+.reg .textarea-field__input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #fff;
+}
+
+.reg .input-field__input::placeholder,
+.reg .textarea-field__input::placeholder {
+  color: #aaa;
+}
+
+/* ── Disability conditional input ── */
+.reg__disability-input {
+  margin-top: 0.5rem;
+  padding-left: 1.75rem;
+}
+
+/* ── Education rows ── */
+.reg__edu-row {
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.reg__edu-grid {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.reg__remove-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin-bottom: 2px;
+}
+
+.reg__remove-btn:hover {
+  background: #fca5a5;
+}
+
+.reg__add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: #22c55e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 0.25rem;
+}
+
+.reg__add-btn:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+/* ── Checkbox ── */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #444;
+  user-select: none;
+}
+
+.checkbox-field__input {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.checkbox-field__label {
+  font-weight: 500;
+}
+
+/* ── Date field ── */
+.date-field {
+  width: 100%;
+}
+
+/* ── Textarea ── */
+.textarea-field {
+  width: 100%;
+}
+
+.textarea-field__input {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+/* ── File field ── */
+.file-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.file-field__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  background: #f0f0f0;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.file-field__btn:hover {
+  background: #e8e8e8;
+  border-color: #ccc;
+}
+
+.file-field__hidden {
+  display: none;
+}
+
+.file-field__name {
+  font-size: 0.8rem;
+  color: #667eea;
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Actions ── */
+.reg__actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.reg__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reg__btn--primary {
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.reg__btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+}
+
+.reg__btn--primary:active {
+  transform: translateY(0);
+}
+
+.reg__btn--outline {
+  color: #667eea;
+  background: transparent;
+  border: 2px solid #667eea;
+}
+
+.reg__btn--outline:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+/* ── Success ── */
+.reg__success {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.reg__success-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.reg__success-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #22c55e;
+  margin: 0 0 0.25rem;
+}
+
+.reg__success-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.reg__summary {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.reg__summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.45rem 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.reg__summary-row:last-child {
+  border-bottom: none;
+}
+
+.reg__summary-row span:first-child {
+  font-weight: 600;
+  color: #555;
+}
+
+.reg__summary-row span:last-child {
+  color: #333;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .reg__card {
+    padding: 1.25rem 1rem;
+  }
+
+  .reg__row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .reg__edu-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reg__col--sm {
+    flex: 1;
+  }
+}
