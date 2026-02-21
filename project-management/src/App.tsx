@@ -11,6 +11,7 @@ import BoardPage from "@/features/board/BoardPage"
 import BacklogPage from "@/features/backlog/BacklogPage"
 import ReportsPage from "@/features/reports/ReportsPage"
 import SettingsPage from "@/features/settings/SettingsPage"
+import { Toaster } from "sonner"
 import "./index.css"
 
 const queryClient = new QueryClient({
@@ -91,6 +92,12 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppShell />
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{ duration: 3000 }}
+        />
       </AuthProvider>
     </QueryClientProvider>
   )
