@@ -1,0 +1,30 @@
+/* ============================================================
+ * SelectField Styles
+ * ============================================================ */
+
+.select-field {
+  flex: 1;
+}
+
+.select-field__select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff;
+  color: #333;
+  appearance: auto;
+}
+
+.select-field__select:invalid,
+.select-field__select option[value=""] {
+  color: #999;
+}
+
+.select-field__select:focus {
+  border-color: #1565c0;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.15);
+}

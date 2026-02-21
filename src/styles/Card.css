@@ -1,0 +1,72 @@
+/* ============================================================
+ * Card Styles (Stateless + Stateful + CardImage)
+ * ============================================================ */
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card--stateful {
+  border-left: 4px solid #1565c0;
+}
+
+.card--image {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card__image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.card__content {
+  padding: 16px 20px;
+}
+
+.card__title {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.card__description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.card__meta {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 8px;
+}
+
+.card__btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.card__btn:hover {
+  background: #0d47a1;
+}
+
+.card__body {
+  margin-top: 12px;
+}

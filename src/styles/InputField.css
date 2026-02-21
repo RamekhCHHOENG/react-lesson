@@ -1,0 +1,27 @@
+/* ============================================================
+ * InputField Styles
+ * ============================================================ */
+
+.input-field {
+  flex: 1;
+}
+
+.input-field__input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.input-field__input::placeholder {
+  color: #999;
+}
+
+.input-field__input:focus {
+  border-color: #1565c0;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.15);
+}
