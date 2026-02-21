@@ -4,6 +4,7 @@ import { StatusBadge, PriorityBadge } from "./StatusBadge"
 import { TaskList } from "./TaskList"
 import { TaskFormDialog } from "./TaskFormDialog"
 import { useTasks } from "@/hooks/useProjects"
+import { formatDate } from "@/lib/utils"
 import { ArrowLeft, Plus, Calendar, Tag, Pencil, Trash2 } from "lucide-react"
 import { TASK_STATUS_CONFIG } from "@/config"
 import { Button } from "@/components/ui/button"
@@ -22,15 +23,17 @@ interface TaskCardProps {
   onDelete: (taskId: string) => void
   draggable?: boolean
   onDragStart?: (e: React.DragEvent, task: Task) => void
+  onDragEnd?: (e: React.DragEvent) => void
 }
 
-export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart, onDragEnd }: TaskCardProps) {
   const statusConfig = TASK_STATUS_CONFIG[task.status]
   return (
     <div
       className="bg-card rounded border p-3 hover:bg-muted cursor-pointer shadow-sm"
       draggable={draggable}
       onDragStart={draggable && onDragStart ? (e) => onDragStart(e, task) : undefined}
+      onDragEnd={draggable && onDragEnd ? onDragEnd : undefined}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
@@ -156,7 +159,7 @@ export function ProjectDetail({ project, onBack, onEdit }: ProjectDetailProps) {
           <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
             <Calendar className="h-3.5 w-3.5" />
             <span>
-              {project.startDate} &#8594; {project.endDate || "No end date"}
+              {formatDate(project.startDate)} &#8594; {project.endDate ? formatDate(project.endDate) : "No end date"}
             </span>
           </div>
           {project.tags.length > 0 && (

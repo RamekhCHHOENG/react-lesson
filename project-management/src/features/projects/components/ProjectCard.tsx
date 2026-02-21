@@ -1,7 +1,10 @@
+import { useState } from "react"
 import type { Project } from "@/types/project"
 import { PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/config"
+import { formatDate } from "@/lib/utils"
 import { Calendar, ListTodo, Pencil, Trash2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 
 interface ProjectCardProps {
   project: Project
@@ -11,6 +14,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const tasksDone = project.tasks.filter((t) => t.status === "done").length
   const totalTasks = project.tasks.length
   const progress = totalTasks > 0 ? Math.round((tasksDone / totalTasks) * 100) : 0
@@ -42,7 +46,7 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
               variant="ghost"
               size="icon"
               className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => onDelete(project.id)}
+              onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -75,7 +79,7 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
         <div className="flex items-center gap-4 mt-3 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {project.startDate}
+            {formatDate(project.startDate)}
           </span>
           <span className="flex items-center gap-1">
             <ListTodo className="h-3 w-3" />
@@ -116,6 +120,17 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete project"
+        description={`Are you sure you want to delete "${project.name}" and all its tasks? This action cannot be undone.`}
+        onConfirm={() => {
+          onDelete(project.id)
+          setShowDeleteConfirm(false)
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   )
 }

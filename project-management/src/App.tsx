@@ -30,12 +30,16 @@ function Dashboard() {
     setCreateTrigger((p) => p + 1)
   }, [])
 
+  const handleNavigate = useCallback((page: string) => {
+    setActivePage(page as Page)
+  }, [])
+
   const renderPage = () => {
     switch (activePage) {
       case "board":
-        return <BoardPage />
+        return <BoardPage createTrigger={createTrigger} />
       case "backlog":
-        return <BacklogPage />
+        return <BacklogPage createTrigger={createTrigger} />
       case "reports":
         return <ReportsPage />
       case "settings":
@@ -49,7 +53,7 @@ function Dashboard() {
     <div className="flex h-screen overflow-hidden bg-[#F4F5F7]">
       <Sidebar activeItem={activePage} onItemClick={(item) => setActivePage(item as Page)} />
       <div className="flex flex-col flex-1 min-w-0">
-        <TopNav activePage={activePage} onCreateProject={handleCreate} />
+        <TopNav activePage={activePage} onCreateProject={handleCreate} onNavigate={handleNavigate} />
         <main className="flex-1 overflow-hidden">{renderPage()}</main>
       </div>
     </div>

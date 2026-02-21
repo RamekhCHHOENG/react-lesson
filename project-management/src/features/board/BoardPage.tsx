@@ -1,9 +1,9 @@
-import { useState, useRef, useMemo, useCallback } from "react"
+import { useState, useRef, useMemo, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
-import { projectStorage } from "@/services/projectStorage"
-import { useQueryClient } from "@tanstack/react-query"
+import { useTaskActions } from "@/hooks/useProjects"
 import { BOARD_COLUMNS, TaskCard } from "@/features/projects/components/ProjectDetail"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import type { Task, TaskStatus } from "@/types/project"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,15 +21,34 @@ interface BoardTask extends Task {
   projectName: string
 }
 
-export default function BoardPage() {
-  const { state, dispatch } = useProjectContext()
-  const queryClient = useQueryClient()
+interface Props {
+  createTrigger?: number
+}
+
+export default function BoardPage({ createTrigger }: Props) {
+  const { state } = useProjectContext()
+  const { updateTask, deleteTask: apiDeleteTask, addTask } = useTaskActions()
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null)
   const dragTaskRef = useRef<{ task: BoardTask; sourceColumn: TaskStatus } | null>(null)
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<BoardTask | null>(null)
   const [createForProject, setCreateForProject] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
+  const [deleteTarget, setDeleteTarget] = useState<BoardTask | null>(null)
+
+  // Open create dialog from TopNav "Create" button
+  useEffect(() => {
+    if (createTrigger && createTrigger > 0) {
+      const targetProject = selectedProjectId !== "all"
+        ? selectedProjectId
+        : state.projects[0]?.id
+      if (targetProject) {
+        setCreateForProject(targetProject)
+        setEditingTask(null)
+        setTaskDialogOpen(true)
+      }
+    }
+  }, [createTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const allTasks = useMemo<BoardTask[]>(() => {
     return state.projects.flatMap((project) =>
@@ -80,19 +99,13 @@ export default function BoardPage() {
     setDragOverColumn(null)
   }
 
-  const refreshData = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["projects"] })
-    dispatch({ type: "LOAD_PROJECTS" })
-  }, [queryClient, dispatch])
-
   const handleDrop = (e: React.DragEvent, targetColumn: TaskStatus) => {
     e.preventDefault()
     setDragOverColumn(null)
     const ref = dragTaskRef.current
     if (!ref) return
     if (ref.sourceColumn === targetColumn) return
-    projectStorage.updateTask(ref.task.projectId, ref.task.id, { status: targetColumn })
-    refreshData()
+    updateTask(ref.task.projectId, ref.task.id, { status: targetColumn })
     dragTaskRef.current = null
   }
 
@@ -107,9 +120,14 @@ export default function BoardPage() {
   const handleDeleteTask = (taskId: string) => {
     const boardTask = filteredTasks.find((t) => t.id === taskId)
     if (boardTask) {
-      projectStorage.removeTask(boardTask.projectId, taskId)
-      refreshData()
+      setDeleteTarget(boardTask)
     }
+  }
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+    apiDeleteTask(deleteTarget.projectId, deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   return (
@@ -217,18 +235,17 @@ export default function BoardPage() {
                     </div>
                   ) : (
                     column.tasks.map((task) => (
-                      <div key={task.id} onDragEnd={handleDragEnd}>
-                        <div className="relative">
-                          <TaskCard
-                            task={task}
-                            onEdit={handleEditTask}
-                            onDelete={handleDeleteTask}
-                            draggable
-                            onDragStart={handleDragStart}
-                          />
-                          <div className="absolute bottom-1 left-3 text-[9px] text-muted-foreground/60 font-medium">
-                            {(task as BoardTask).projectName}
-                          </div>
+                      <div key={task.id} className="relative">
+                        <TaskCard
+                          task={task}
+                          onEdit={handleEditTask}
+                          onDelete={handleDeleteTask}
+                          draggable
+                          onDragStart={handleDragStart}
+                          onDragEnd={handleDragEnd}
+                        />
+                        <div className="absolute bottom-1 left-3 text-[9px] text-muted-foreground/60 font-medium pointer-events-none">
+                          {(task as BoardTask).projectName}
                         </div>
                       </div>
                     ))
@@ -249,16 +266,23 @@ export default function BoardPage() {
         }}
         onSubmit={(data) => {
           if (editingTask) {
-            projectStorage.updateTask(editingTask.projectId, editingTask.id, data)
+            updateTask(editingTask.projectId, editingTask.id, data)
           } else if (createForProject) {
-            projectStorage.addTask(createForProject, data)
+            addTask(createForProject, data)
           }
-          refreshData()
           setEditingTask(null)
           setCreateForProject(null)
         }}
         initialData={editingTask ?? undefined}
         title={editingTask ? "Edit issue" : "Create issue"}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete issue"
+        description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   )

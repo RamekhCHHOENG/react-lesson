@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
-import { projectStorage } from "@/services/projectStorage"
+import { useTaskActions } from "@/hooks/useProjects"
 import { formatDate } from "@/lib/utils"
-import { useQueryClient } from "@tanstack/react-query"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import type { Task, TaskStatus } from "@/types/project"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,7 +19,6 @@ import {
 import {
   CheckSquare,
   Search,
-  GripVertical,
   Pencil,
   Trash2,
   ChevronDown,
@@ -45,10 +44,7 @@ function TaskRow({
   onStatusChange: (task: BacklogTask, status: TaskStatus) => void
 }) {
   return (
-    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-2.5 border-b hover:bg-accent/50 transition-colors group items-center">
-      <div className="flex items-center justify-center">
-        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
-      </div>
+    <div className="grid grid-cols-[1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-2.5 border-b hover:bg-accent/50 transition-colors group items-center">
       <div className="min-w-0">
         <span className="text-sm font-medium text-foreground truncate block">
           {task.title}
@@ -94,7 +90,7 @@ function TaskRow({
         {task.dueDate ? (
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3 text-muted-foreground" />
-            {formatDate(task.dueDate, "short")}
+            {formatDate(task.dueDate)}
           </span>
         ) : (
           <span className="text-xs text-muted-foreground/60">&#8212;</span>
@@ -122,15 +118,20 @@ function TaskRow({
   )
 }
 
-export default function BacklogPage() {
-  const { state, dispatch } = useProjectContext()
-  const queryClient = useQueryClient()
+interface Props {
+  createTrigger?: number
+}
+
+export default function BacklogPage({ createTrigger }: Props) {
+  const { state } = useProjectContext()
+  const { updateTask, deleteTask, addTask } = useTaskActions()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all")
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
   const [editingTask, setEditingTask] = useState<BacklogTask | null>(null)
   const [createForProject, setCreateForProject] = useState<string | null>(null)
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<BacklogTask | null>(null)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     todo: true,
     "in-progress": true,
@@ -138,10 +139,19 @@ export default function BacklogPage() {
     done: false,
   })
 
-  const refreshData = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["projects"] })
-    dispatch({ type: "LOAD_PROJECTS" })
-  }, [queryClient, dispatch])
+  // Open create dialog from TopNav "Create" button
+  useEffect(() => {
+    if (createTrigger && createTrigger > 0) {
+      const targetProject = selectedProjectId !== "all"
+        ? selectedProjectId
+        : state.projects[0]?.id
+      if (targetProject) {
+        setCreateForProject(targetProject)
+        setEditingTask(null)
+        setTaskDialogOpen(true)
+      }
+    }
+  }, [createTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const allTasks = useMemo<BacklogTask[]>(() => {
     return state.projects.flatMap((project) =>
@@ -185,13 +195,13 @@ export default function BacklogPage() {
   }
 
   const handleStatusChange = (task: BacklogTask, status: TaskStatus) => {
-    projectStorage.updateTask(task.projectId, task.id, { status })
-    refreshData()
+    updateTask(task.projectId, task.id, { status })
   }
 
-  const handleDelete = (task: BacklogTask) => {
-    projectStorage.removeTask(task.projectId, task.id)
-    refreshData()
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+    deleteTask(deleteTarget.projectId, deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   const backlogCount = allTasks.filter((t) => t.status === "todo").length
@@ -320,8 +330,7 @@ export default function BacklogPage() {
                 {expandedSections[key] && (
                   <CardContent className="p-0">
                     {/* Column headers */}
-                    <div className="grid grid-cols-[24px_1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-1.5 bg-muted/30 border-b text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                      <span />
+                    <div className="grid grid-cols-[1fr_120px_100px_100px_100px_80px] gap-3 px-4 py-1.5 bg-muted/30 border-b text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                       <span>Issue</span>
                       <span>Project</span>
                       <span>Status</span>
@@ -342,7 +351,7 @@ export default function BacklogPage() {
                             setEditingTask(t)
                             setTaskDialogOpen(true)
                           }}
-                          onDelete={handleDelete}
+                          onDelete={(t) => setDeleteTarget(t)}
                           onStatusChange={handleStatusChange}
                         />
                       ))
@@ -364,16 +373,23 @@ export default function BacklogPage() {
         }}
         onSubmit={(data) => {
           if (editingTask) {
-            projectStorage.updateTask(editingTask.projectId, editingTask.id, data)
+            updateTask(editingTask.projectId, editingTask.id, data)
           } else if (createForProject) {
-            projectStorage.addTask(createForProject, data)
+            addTask(createForProject, data)
           }
-          refreshData()
           setEditingTask(null)
           setCreateForProject(null)
         }}
         initialData={editingTask ?? undefined}
         title={editingTask ? "Edit issue" : "Create issue"}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete issue"
+        description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   )
