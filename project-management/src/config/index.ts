@@ -28,3 +28,27 @@ export const TASK_STATUS_CONFIG: Record<string, StatusConfig> = {
   review: { label: "Review", color: "bg-purple-100 text-purple-800", dotColor: "#6554C0" },
   done: { label: "Done", color: "bg-green-100 text-green-800", dotColor: "#36B37E" },
 }
+
+/** Resolve status config for default AND custom board column statuses. */
+export function getTaskStatusConfig(status: string): StatusConfig {
+  if (TASK_STATUS_CONFIG[status]) return TASK_STATUS_CONFIG[status]
+
+  // Check custom board columns from localStorage
+  try {
+    const stored = localStorage.getItem("projecthub_board_columns")
+    if (stored) {
+      const columns = JSON.parse(stored) as Array<{ key: string; label: string; headerColor: string }>
+      const col = columns.find((c) => c.key === status)
+      if (col) {
+        return { label: col.label, color: "bg-slate-100 text-slate-800", dotColor: col.headerColor }
+      }
+    }
+  } catch { /* ignore */ }
+
+  // Fallback: humanise the key
+  return {
+    label: status.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    color: "bg-slate-100 text-slate-800",
+    dotColor: "#6B778C",
+  }
+}

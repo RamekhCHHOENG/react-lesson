@@ -1,10 +1,13 @@
 import { useState, useRef, useMemo } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
 import { useTaskActions, useProjects } from "@/hooks/useProjects"
+import { useBoardColumns } from "@/hooks/useBoardColumns"
 import { BoardPageSkeleton } from "@/components/skeletons/PageSkeletons"
-import { BOARD_COLUMNS, TaskCard } from "@/features/projects/components/ProjectDetail"
+import { TaskCard } from "@/features/projects/components/ProjectDetail"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
+import { AddColumnDialog } from "./components/AddColumnDialog"
+import { TaskDetailDrawer } from "./components/TaskDetailDrawer"
 import type { Task, TaskStatus } from "@/types/project"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { LayoutDashboard, Plus } from "lucide-react"
+import { LayoutDashboard, Plus, Trash2 } from "lucide-react"
 
 interface BoardTask extends Task {
   projectId: string
@@ -26,6 +29,8 @@ export default function BoardPage() {
   const { state } = useProjectContext()
   const { isLoading } = useProjects()
   const { updateTask, deleteTask: apiDeleteTask, addTask } = useTaskActions()
+  const { columns, addColumn, removeColumn } = useBoardColumns()
+
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null)
   const dragTaskRef = useRef<{ task: BoardTask; sourceColumn: TaskStatus } | null>(null)
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
@@ -33,6 +38,9 @@ export default function BoardPage() {
   const [createForProject, setCreateForProject] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
   const [deleteTarget, setDeleteTarget] = useState<BoardTask | null>(null)
+  const [addColumnOpen, setAddColumnOpen] = useState(false)
+  const [deleteColumnTarget, setDeleteColumnTarget] = useState<{ key: string; label: string; taskCount: number } | null>(null)
+  const [viewingTask, setViewingTask] = useState<BoardTask | null>(null)
 
   const allTasks = useMemo<BoardTask[]>(() => {
     return state.projects.flatMap((project) =>
@@ -49,10 +57,12 @@ export default function BoardPage() {
     return allTasks.filter((t) => t.projectId === selectedProjectId)
   }, [allTasks, selectedProjectId])
 
-  const tasksByStatus = BOARD_COLUMNS.map((col) => ({
+  const tasksByStatus = columns.map((col) => ({
     ...col,
     tasks: filteredTasks.filter((t) => t.status === col.key),
   }))
+
+  /* ── Drag & Drop ─────────────────────────── */
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     const boardTask = filteredTasks.find((t) => t.id === task.id)
@@ -93,6 +103,13 @@ export default function BoardPage() {
     dragTaskRef.current = null
   }
 
+  /* ── Task Actions ────────────────────────── */
+
+  const handleViewTask = (task: Task) => {
+    const boardTask = filteredTasks.find((t) => t.id === task.id)
+    if (boardTask) setViewingTask(boardTask)
+  }
+
   const handleEditTask = (task: Task) => {
     const boardTask = filteredTasks.find((t) => t.id === task.id)
     if (boardTask) {
@@ -112,7 +129,27 @@ export default function BoardPage() {
     if (!deleteTarget) return
     apiDeleteTask(deleteTarget.projectId, deleteTarget.id)
     setDeleteTarget(null)
+    if (viewingTask?.id === deleteTarget.id) setViewingTask(null)
   }
+
+  /* ── Column Actions ──────────────────────── */
+
+  const handleAddColumn = (label: string, color: string) => {
+    addColumn(label.toUpperCase(), color)
+  }
+
+  const handleDeleteColumn = () => {
+    if (!deleteColumnTarget) return
+    // Move tasks in this column to "todo"
+    const tasksToMove = filteredTasks.filter((t) => t.status === deleteColumnTarget.key)
+    for (const task of tasksToMove) {
+      updateTask(task.projectId, task.id, { status: "todo" })
+    }
+    removeColumn(deleteColumnTarget.key)
+    setDeleteColumnTarget(null)
+  }
+
+  /* ── Loading ─────────────────────────────── */
 
   if (isLoading && state.projects.length === 0) {
     return <BoardPageSkeleton />
@@ -202,7 +239,8 @@ export default function BoardPage() {
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, column.key)}
               >
-                <div className="flex items-center justify-between px-3 py-2.5 shrink-0">
+                {/* Column header */}
+                <div className="flex items-center justify-between px-3 py-2.5 shrink-0 group">
                   <div className="flex items-center gap-2">
                     <span
                       className="text-[11px] font-bold uppercase tracking-wider"
@@ -214,8 +252,25 @@ export default function BoardPage() {
                       {column.tasks.length}
                     </Badge>
                   </div>
+                  {!column.isDefault && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() =>
+                        setDeleteColumnTarget({
+                          key: column.key,
+                          label: column.label,
+                          taskCount: column.tasks.length,
+                        })
+                      }
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
 
+                {/* Column body */}
                 <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
                   {column.tasks.length === 0 ? (
                     <div className="flex items-center justify-center py-8 text-xs text-muted-foreground/60">
@@ -226,6 +281,7 @@ export default function BoardPage() {
                       <div key={task.id} className="relative">
                         <TaskCard
                           task={task}
+                          onView={handleViewTask}
                           onEdit={handleEditTask}
                           onDelete={handleDeleteTask}
                           draggable
@@ -241,10 +297,45 @@ export default function BoardPage() {
                 </div>
               </div>
             ))}
+
+            {/* Add Column button */}
+            <div className="flex flex-col w-[280px] min-w-[280px]">
+              <button
+                className="flex items-center justify-center gap-2 w-full h-10 rounded bg-muted/40 hover:bg-muted border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/40 transition-colors text-muted-foreground hover:text-foreground"
+                onClick={() => setAddColumnOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                <span className="text-xs font-medium">Add Column</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
 
+      {/* Task Detail Drawer */}
+      <TaskDetailDrawer
+        task={viewingTask}
+        open={!!viewingTask}
+        onClose={() => setViewingTask(null)}
+        onEdit={(task) => {
+          setViewingTask(null)
+          setEditingTask(task)
+          setTaskDialogOpen(true)
+        }}
+        onDelete={(task) => {
+          setViewingTask(null)
+          setDeleteTarget(task)
+        }}
+      />
+
+      {/* Add Column Dialog */}
+      <AddColumnDialog
+        open={addColumnOpen}
+        onClose={() => setAddColumnOpen(false)}
+        onAdd={handleAddColumn}
+      />
+
+      {/* Task Form Dialog */}
       <TaskFormDialog
         open={taskDialogOpen}
         onClose={() => {
@@ -265,12 +356,26 @@ export default function BoardPage() {
         title={editingTask ? "Edit issue" : "Create issue"}
       />
 
+      {/* Delete Task Confirm */}
       <ConfirmDialog
         open={!!deleteTarget}
         title="Delete issue"
         description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      {/* Delete Column Confirm */}
+      <ConfirmDialog
+        open={!!deleteColumnTarget}
+        title="Delete column"
+        description={
+          deleteColumnTarget?.taskCount
+            ? `"${deleteColumnTarget.label}" has ${deleteColumnTarget.taskCount} issue${deleteColumnTarget.taskCount > 1 ? "s" : ""}. They will be moved to TO DO. Continue?`
+            : `Are you sure you want to delete the "${deleteColumnTarget?.label}" column?`
+        }
+        onConfirm={handleDeleteColumn}
+        onCancel={() => setDeleteColumnTarget(null)}
       />
     </div>
   )

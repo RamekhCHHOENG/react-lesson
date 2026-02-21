@@ -6,7 +6,7 @@ import { TaskFormDialog } from "./TaskFormDialog"
 import { useTasks } from "@/hooks/useProjects"
 import { formatDate } from "@/lib/utils"
 import { ArrowLeft, Plus, Calendar, Tag, Pencil, Trash2 } from "lucide-react"
-import { TASK_STATUS_CONFIG } from "@/config"
+import { getTaskStatusConfig } from "@/config"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -21,17 +21,19 @@ interface TaskCardProps {
   task: Task
   onEdit: (task: Task) => void
   onDelete: (taskId: string) => void
+  onView?: (task: Task) => void
   draggable?: boolean
   onDragStart?: (e: React.DragEvent, task: Task) => void
   onDragEnd?: (e: React.DragEvent) => void
 }
 
-export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart, onDragEnd }: TaskCardProps) {
-  const statusConfig = TASK_STATUS_CONFIG[task.status]
+export function TaskCard({ task, onEdit, onDelete, onView, draggable, onDragStart, onDragEnd }: TaskCardProps) {
+  const statusConfig = getTaskStatusConfig(task.status)
   return (
     <div
       className="bg-card rounded border p-3 hover:bg-muted cursor-pointer shadow-sm"
       draggable={draggable}
+      onClick={() => onView?.(task)}
       onDragStart={draggable && onDragStart ? (e) => onDragStart(e, task) : undefined}
       onDragEnd={draggable && onDragEnd ? onDragEnd : undefined}
     >
@@ -43,10 +45,10 @@ export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart, onDra
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onEdit(task)}>
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); onEdit(task) }}>
             <Pencil className="h-3 w-3" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive" onClick={() => onDelete(task.id)}>
+          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(task.id) }}>
             <Trash2 className="h-3 w-3" />
           </Button>
         </div>
@@ -54,9 +56,9 @@ export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart, onDra
       <div className="flex items-center gap-2 mt-2">
         <span
           className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium"
-          style={{ backgroundColor: statusConfig?.dotColor + "20", color: statusConfig?.dotColor }}
+          style={{ backgroundColor: statusConfig.dotColor + "20", color: statusConfig.dotColor }}
         >
-          {statusConfig?.label ?? task.status}
+          {statusConfig.label}
         </span>
       </div>
     </div>

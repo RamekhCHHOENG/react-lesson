@@ -19,6 +19,8 @@ import {
  DialogFooter,
  DialogDescription,
 } from "@/components/ui/dialog"
+import { getTaskStatusConfig } from "@/config"
+import { useBoardColumns } from "@/hooks/useBoardColumns"
 import type { TaskFormData, TaskStatus } from "@/types/project"
 
 interface TaskFormDialogProps {
@@ -47,6 +49,7 @@ export function TaskFormDialog({
  isLoading = false,
 }: TaskFormDialogProps) {
  const [form, setForm] = useState<TaskFormData>({ ...emptyTask, ...initialData })
+ const { columns } = useBoardColumns()
 
  useEffect(() => {
  if (open) {
@@ -105,10 +108,14 @@ export function TaskFormDialog({
  <SelectValue placeholder="Select status" />
  </SelectTrigger>
  <SelectContent>
- <SelectItem value="todo">To Do</SelectItem>
- <SelectItem value="in-progress">In Progress</SelectItem>
- <SelectItem value="review">Review</SelectItem>
- <SelectItem value="done">Done</SelectItem>
+ {columns.map((col) => {
+ const cfg = getTaskStatusConfig(col.key)
+ return (
+ <SelectItem key={col.key} value={col.key}>
+ {cfg.label}
+ </SelectItem>
+ )
+ })}
  </SelectContent>
  </Select>
  </div>

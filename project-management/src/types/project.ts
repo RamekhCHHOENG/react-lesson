@@ -1,6 +1,6 @@
 export type ProjectStatus = "planning" | "in-progress" | "on-hold" | "completed" | "cancelled"
 export type ProjectPriority = "low" | "medium" | "high" | "urgent"
-export type TaskStatus = "todo" | "in-progress" | "review" | "done"
+export type TaskStatus = "todo" | "in-progress" | "review" | "done" | (string & Record<never, never>)
 
 export interface Task {
  id: string

@@ -1,5 +1,5 @@
 import type { ProjectStatus, ProjectPriority, TaskStatus } from "@/types/project"
-import { PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG, TASK_STATUS_CONFIG } from "@/config"
+import { PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG, getTaskStatusConfig } from "@/config"
 import { cn } from "@/lib/utils"
 
 interface StatusBadgeProps {
@@ -9,8 +9,9 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, type = "project", className }: StatusBadgeProps) {
- const config = type === "task" ? TASK_STATUS_CONFIG : PROJECT_STATUS_CONFIG
- const cfg = config[status]
+ const cfg = type === "task"
+   ? getTaskStatusConfig(status)
+   : PROJECT_STATUS_CONFIG[status]
  if (!cfg) return null
 
  return (
