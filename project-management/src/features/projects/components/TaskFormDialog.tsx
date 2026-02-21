@@ -2,8 +2,15 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
  Dialog,
  DialogContent,
@@ -91,14 +98,18 @@ export function TaskFormDialog({
  <div className="space-y-2">
  <Label htmlFor="taskStatus">Status</Label>
  <Select
- id="taskStatus"
  value={form.status}
- onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange("status", e.target.value as TaskStatus)}
+ onValueChange={(value) => handleChange("status", value as TaskStatus)}
  >
- <option value="todo">To Do</option>
- <option value="in-progress">In Progress</option>
- <option value="review">Review</option>
- <option value="done">Done</option>
+ <SelectTrigger id="taskStatus">
+ <SelectValue placeholder="Select status" />
+ </SelectTrigger>
+ <SelectContent>
+ <SelectItem value="todo">To Do</SelectItem>
+ <SelectItem value="in-progress">In Progress</SelectItem>
+ <SelectItem value="review">Review</SelectItem>
+ <SelectItem value="done">Done</SelectItem>
+ </SelectContent>
  </Select>
  </div>
  <div className="space-y-2">
@@ -114,11 +125,11 @@ export function TaskFormDialog({
 
  <div className="space-y-2">
  <Label htmlFor="dueDate">Due Date</Label>
- <Input
+ <DatePicker
  id="dueDate"
- type="date"
  value={form.dueDate}
- onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("dueDate", e.target.value)}
+ onChange={(value) => handleChange("dueDate", value)}
+ placeholder="Pick a due date"
  />
  </div>
 

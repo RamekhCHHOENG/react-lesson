@@ -9,7 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   CheckSquare,
   Search,
@@ -59,13 +65,17 @@ function TaskRow({
       <div>
         <Select
           value={task.status}
-          onChange={(e) => onStatusChange(task, e.target.value as TaskStatus)}
-          className="h-6 text-[10px] font-semibold uppercase border-0 bg-transparent px-1.5"
+          onValueChange={(value) => onStatusChange(task, value as TaskStatus)}
         >
-          <option value="todo">TO DO</option>
-          <option value="in-progress">IN PROGRESS</option>
-          <option value="review">IN REVIEW</option>
-          <option value="done">DONE</option>
+          <SelectTrigger className="h-6 text-[10px] font-semibold uppercase border-0 bg-transparent px-1.5">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todo">TO DO</SelectItem>
+            <SelectItem value="in-progress">IN PROGRESS</SelectItem>
+            <SelectItem value="review">IN REVIEW</SelectItem>
+            <SelectItem value="done">DONE</SelectItem>
+          </SelectContent>
         </Select>
       </div>
       <div>
@@ -238,26 +248,34 @@ export default function BacklogPage() {
             </div>
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "all")}
-              className="h-8 w-[150px] text-sm"
+              onValueChange={(value) => setStatusFilter(value as TaskStatus | "all")}
             >
-              <option value="all">All statuses</option>
-              <option value="todo">To Do</option>
-              <option value="in-progress">In Progress</option>
-              <option value="review">In Review</option>
-              <option value="done">Done</option>
+              <SelectTrigger className="h-8 w-[150px] text-sm">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="todo">To Do</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="review">In Review</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectContent>
             </Select>
             <Select
               value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="h-8 w-[180px] text-sm"
+              onValueChange={(value) => setSelectedProjectId(value)}
             >
-              <option value="all">All projects</option>
-              {state.projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
+              <SelectTrigger className="h-8 w-[180px] text-sm">
+                <SelectValue placeholder="All projects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All projects</SelectItem>
+                {state.projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
         </div>

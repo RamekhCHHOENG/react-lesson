@@ -7,7 +7,13 @@ import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
 import type { Task, TaskStatus } from "@/types/project"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { LayoutDashboard, Plus } from "lucide-react"
 
 interface BoardTask extends Task {
@@ -129,15 +135,19 @@ export default function BoardPage() {
             <div className="flex items-center gap-3">
               <Select
                 value={selectedProjectId}
-                onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="h-8 w-[180px] text-sm"
+                onValueChange={(value) => setSelectedProjectId(value)}
               >
-                <option value="all">All projects</option>
-                {state.projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
+                <SelectTrigger className="h-8 w-[180px] text-sm">
+                  <SelectValue placeholder="All projects" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All projects</SelectItem>
+                  {state.projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
               {state.projects.length > 0 && (
                 <Button

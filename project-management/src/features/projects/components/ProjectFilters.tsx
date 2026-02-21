@@ -1,7 +1,13 @@
 import { Search } from "lucide-react"
 import type { ProjectStatus, ProjectPriority } from "@/types/project"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ProjectFiltersProps {
   search: string
@@ -36,28 +42,36 @@ export function ProjectFilters({
       {/* status */}
       <Select
         value={statusFilter}
-        onChange={(e) => onStatusChange(e.target.value as ProjectStatus | "all")}
-        className="h-8 w-full sm:w-[150px] text-[13px]"
+        onValueChange={(value) => onStatusChange(value as ProjectStatus | "all")}
       >
-        <option value="all">All Statuses</option>
-        <option value="planning">Planning</option>
-        <option value="in-progress">In Progress</option>
-        <option value="on-hold">On Hold</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
+        <SelectTrigger className="h-8 w-full sm:w-[150px] text-[13px]">
+          <SelectValue placeholder="All Statuses" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Statuses</SelectItem>
+          <SelectItem value="planning">Planning</SelectItem>
+          <SelectItem value="in-progress">In Progress</SelectItem>
+          <SelectItem value="on-hold">On Hold</SelectItem>
+          <SelectItem value="completed">Completed</SelectItem>
+          <SelectItem value="cancelled">Cancelled</SelectItem>
+        </SelectContent>
       </Select>
 
       {/* priority */}
       <Select
         value={priorityFilter}
-        onChange={(e) => onPriorityChange(e.target.value as ProjectPriority | "all")}
-        className="h-8 w-full sm:w-[150px] text-[13px]"
+        onValueChange={(value) => onPriorityChange(value as ProjectPriority | "all")}
       >
-        <option value="all">All Priorities</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="urgent">Urgent</option>
+        <SelectTrigger className="h-8 w-full sm:w-[150px] text-[13px]">
+          <SelectValue placeholder="All Priorities" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Priorities</SelectItem>
+          <SelectItem value="low">Low</SelectItem>
+          <SelectItem value="medium">Medium</SelectItem>
+          <SelectItem value="high">High</SelectItem>
+          <SelectItem value="urgent">Urgent</SelectItem>
+        </SelectContent>
       </Select>
     </div>
   )

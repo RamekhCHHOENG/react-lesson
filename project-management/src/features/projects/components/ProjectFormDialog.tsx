@@ -3,7 +3,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
  Dialog,
  DialogContent,
@@ -107,29 +114,37 @@ export function ProjectFormDialog({
  <div className="space-y-2">
  <Label htmlFor="status">Status</Label>
  <Select
- id="status"
  value={form.status}
- onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange("status", e.target.value as ProjectStatus)}
+ onValueChange={(value) => handleChange("status", value as ProjectStatus)}
  >
- <option value="planning">Planning</option>
- <option value="in-progress">In Progress</option>
- <option value="on-hold">On Hold</option>
- <option value="completed">Completed</option>
- <option value="cancelled">Cancelled</option>
+ <SelectTrigger id="status">
+ <SelectValue placeholder="Select status" />
+ </SelectTrigger>
+ <SelectContent>
+ <SelectItem value="planning">Planning</SelectItem>
+ <SelectItem value="in-progress">In Progress</SelectItem>
+ <SelectItem value="on-hold">On Hold</SelectItem>
+ <SelectItem value="completed">Completed</SelectItem>
+ <SelectItem value="cancelled">Cancelled</SelectItem>
+ </SelectContent>
  </Select>
  </div>
 
  <div className="space-y-2">
  <Label htmlFor="priority">Priority</Label>
  <Select
- id="priority"
  value={form.priority}
- onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChange("priority", e.target.value as ProjectPriority)}
+ onValueChange={(value) => handleChange("priority", value as ProjectPriority)}
  >
- <option value="low">Low</option>
- <option value="medium">Medium</option>
- <option value="high">High</option>
- <option value="urgent">Urgent</option>
+ <SelectTrigger id="priority">
+ <SelectValue placeholder="Select priority" />
+ </SelectTrigger>
+ <SelectContent>
+ <SelectItem value="low">Low</SelectItem>
+ <SelectItem value="medium">Medium</SelectItem>
+ <SelectItem value="high">High</SelectItem>
+ <SelectItem value="urgent">Urgent</SelectItem>
+ </SelectContent>
  </Select>
  </div>
  </div>
@@ -137,21 +152,21 @@ export function ProjectFormDialog({
  <div className="grid grid-cols-2 gap-4">
  <div className="space-y-2">
  <Label htmlFor="startDate">Start Date</Label>
- <Input
+ <DatePicker
  id="startDate"
- type="date"
  value={form.startDate}
- onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("startDate", e.target.value)}
+ onChange={(value) => handleChange("startDate", value)}
+ placeholder="Pick start date"
  required
  />
  </div>
  <div className="space-y-2">
  <Label htmlFor="endDate">End Date</Label>
- <Input
+ <DatePicker
  id="endDate"
- type="date"
  value={form.endDate}
- onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("endDate", e.target.value)}
+ onChange={(value) => handleChange("endDate", value)}
+ placeholder="Pick end date"
  />
  </div>
  </div>
