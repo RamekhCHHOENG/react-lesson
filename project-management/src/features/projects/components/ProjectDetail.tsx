@@ -1,12 +1,64 @@
 import { useState } from "react"
-import type { Project, Task, TaskFormData } from "@/types/project"
+import type { Project, Task, TaskFormData, TaskStatus } from "@/types/project"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatusBadge, PriorityBadge } from "./StatusBadge"
 import { TaskList } from "./TaskList"
 import { TaskFormDialog } from "./TaskFormDialog"
 import { useTasks } from "@/hooks/useProjects"
-import { ArrowLeft, Plus, Calendar, Tag } from "lucide-react"
+import { ArrowLeft, Plus, Calendar, Tag, Pencil, Trash2 } from "lucide-react"
+import { TASK_STATUS_CONFIG } from "@/config"
+
+export const BOARD_COLUMNS: { key: TaskStatus; label: string; headerColor: string }[] = [
+  { key: "todo", label: "TO DO", headerColor: "#6B778C" },
+  { key: "in-progress", label: "IN PROGRESS", headerColor: "#0065FF" },
+  { key: "review", label: "IN REVIEW", headerColor: "#6554C0" },
+  { key: "done", label: "DONE", headerColor: "#36B37E" },
+]
+
+interface TaskCardProps {
+  task: Task
+  onEdit: (task: Task) => void
+  onDelete: (taskId: string) => void
+  draggable?: boolean
+  onDragStart?: (e: React.DragEvent, task: Task) => void
+}
+
+export function TaskCard({ task, onEdit, onDelete, draggable, onDragStart }: TaskCardProps) {
+  const statusConfig = TASK_STATUS_CONFIG[task.status]
+  return (
+    <div
+      className="bg-white rounded border border-[#DFE1E6] p-3 hover:bg-[#F4F5F7] cursor-pointer shadow-sm"
+      draggable={draggable}
+      onDragStart={draggable && onDragStart ? (e) => onDragStart(e, task) : undefined}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-[#172B4D] truncate">{task.title}</p>
+          {task.description && (
+            <p className="text-xs text-[#6B778C] mt-1 line-clamp-2">{task.description}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button onClick={() => onEdit(task)} className="p-1 rounded hover:bg-[#EBECF0]">
+            <Pencil className="h-3 w-3 text-[#6B778C]" />
+          </button>
+          <button onClick={() => onDelete(task.id)} className="p-1 rounded hover:bg-[#FFEBE6]">
+            <Trash2 className="h-3 w-3 text-[#DE350B]" />
+          </button>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        <span
+          className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium"
+          style={{ backgroundColor: statusConfig?.dotColor + "20", color: statusConfig?.dotColor }}
+        >
+          {statusConfig?.label ?? task.status}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 interface ProjectDetailProps {
   project: Project

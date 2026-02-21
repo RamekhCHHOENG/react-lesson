@@ -16,7 +16,8 @@
 
 import type { EmployeeFormData } from "../types";
 
-const API_BASE = "/api";
+// @ts-ignore placeholder for future API integration
+const _API_BASE = "/api";
 
 /**
  * Simulate registering an employee (mock — no real backend).

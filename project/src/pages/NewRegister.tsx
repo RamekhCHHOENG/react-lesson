@@ -65,7 +65,7 @@ const NewRegister: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormData>(INITIAL_FORM_DATA);
   const [submitted, setSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState<RegisterFormData | null>(null);
-  const [nextSubjectId, setNextSubjectId] = useState(2);
+  const [_nextSubjectId, setNextSubjectId] = useState(2);
 
   /* ── useEffect — replaces componentDidMount + componentWillUnmount ── */
   useEffect(() => {

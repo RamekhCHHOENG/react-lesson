@@ -74,6 +74,8 @@ class Register extends React.Component<Record<string, never>, RegisterState> {
     };
   }
 
+  private renderCount = 0;
+
   /* ── componentDidMount() ── */
   componentDidMount(): void {
     document.title = "Signup for Free";

@@ -97,8 +97,10 @@ class CreateEmployee extends React.Component<
 > {
   /* ── Instance properties (NOT in state — don't trigger re-render) ── */
   private renderCount = 0;
-  private mountTimestamp = 0;
-  private lastRenderTimestamp = 0;
+  // @ts-ignore used for lesson demonstration
+  private _mountTimestamp = 0;
+  // @ts-ignore used for lesson demonstration
+  private _lastRenderTimestamp = 0;
 
   /* ──────────────────────────────────────────────────────────
    * MOUNTING: constructor()
@@ -107,8 +109,8 @@ class CreateEmployee extends React.Component<
    * ────────────────────────────────────────────────────────── */
   constructor(props: Record<string, never>) {
     super(props);
-    this.mountTimestamp = Date.now();
-    this.lastRenderTimestamp = Date.now();
+    this._mountTimestamp = Date.now();
+    this._lastRenderTimestamp = Date.now();
 
     this.state = {
       formData: {
@@ -137,7 +139,7 @@ class CreateEmployee extends React.Component<
    * ────────────────────────────────────────────────────────── */
   componentDidMount(): void {
     document.title = "Create Employee — Premium";
-    this.lastRenderTimestamp = Date.now();
+    this._lastRenderTimestamp = Date.now();
   }
 
   /* ──────────────────────────────────────────────────────────
@@ -157,7 +159,7 @@ class CreateEmployee extends React.Component<
     _prevProps: Record<string, never>,
     _prevState: CreateEmployeeState
   ): void {
-    this.lastRenderTimestamp = Date.now();
+    this._lastRenderTimestamp = Date.now();
   }
 
   /* ──────────────────────────────────────────────────────────

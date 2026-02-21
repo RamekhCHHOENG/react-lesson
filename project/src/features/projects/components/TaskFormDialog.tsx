@@ -53,7 +53,7 @@ export function TaskFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v: boolean) => !v && onClose()}>
       <DialogContent className="sm:max-w-[460px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
