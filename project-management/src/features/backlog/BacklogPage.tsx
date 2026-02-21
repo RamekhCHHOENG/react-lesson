@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
 import { useTaskActions, useProjects } from "@/hooks/useProjects"
 import { BacklogPageSkeleton } from "@/components/skeletons/PageSkeletons"
@@ -119,11 +119,7 @@ function TaskRow({
   )
 }
 
-interface Props {
-  createTrigger?: number
-}
-
-export default function BacklogPage({ createTrigger }: Props) {
+export default function BacklogPage() {
   const { state } = useProjectContext()
   const { isLoading } = useProjects()
   const { updateTask, deleteTask, addTask } = useTaskActions()
@@ -140,20 +136,6 @@ export default function BacklogPage({ createTrigger }: Props) {
     review: true,
     done: false,
   })
-
-  // Open create dialog from TopNav "Create" button
-  useEffect(() => {
-    if (createTrigger && createTrigger > 0) {
-      const targetProject = selectedProjectId !== "all"
-        ? selectedProjectId
-        : state.projects[0]?.id
-      if (targetProject) {
-        setCreateForProject(targetProject)
-        setEditingTask(null)
-        setTaskDialogOpen(true)
-      }
-    }
-  }, [createTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const allTasks = useMemo<BacklogTask[]>(() => {
     return state.projects.flatMap((project) =>

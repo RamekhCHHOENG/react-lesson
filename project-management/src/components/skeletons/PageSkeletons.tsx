@@ -156,6 +156,201 @@ function BoardCardSkeleton() {
   )
 }
 
+// ── Reports Page Skeleton ───────────────────────────────────────
+
+export function ReportsPageSkeleton() {
+  return (
+    <div className="h-full flex flex-col bg-background">
+      {/* Header skeleton */}
+      <div className="bg-card border-b shrink-0">
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-8 h-8 rounded" />
+            <div>
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-3.5 w-64 mt-1.5" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto p-6 space-y-6">
+        {/* Summary cards skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-10 h-10 rounded" />
+                  <div>
+                    <Skeleton className="h-7 w-12" />
+                    <Skeleton className="h-3 w-20 mt-1" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Charts skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-0">
+                <Skeleton className="h-4 w-40" />
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="space-y-3">
+                  {Array.from({ length: i < 2 ? 4 : 5 }).map((_, j) => (
+                    <div key={j} className="flex items-center gap-3">
+                      <Skeleton className="w-3 h-3 rounded-sm shrink-0" />
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="flex-1 h-6 rounded-sm" />
+                      <Skeleton className="h-3 w-8" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Project progress table skeleton */}
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b px-5 py-4">
+            <Skeleton className="h-4 w-32" />
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              <div className="grid grid-cols-[1fr_80px_80px_120px_60px] gap-4 px-5 py-2.5 bg-muted/50">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-12 mx-auto" />
+                <Skeleton className="h-3 w-10 mx-auto" />
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-6 ml-auto" />
+              </div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="grid grid-cols-[1fr_80px_80px_120px_60px] gap-4 px-5 py-3 items-center"
+                >
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-8 mx-auto" />
+                  <Skeleton className="h-4 w-6 mx-auto" />
+                  <Skeleton className="h-2 w-full rounded-full" />
+                  <Skeleton className="h-4 w-8 ml-auto" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+// ── Settings Page Skeleton ──────────────────────────────────────
+
+export function SettingsPageSkeleton() {
+  return (
+    <div className="h-full flex flex-col bg-background">
+      {/* Header skeleton */}
+      <div className="bg-card border-b shrink-0">
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-8 h-8 rounded" />
+            <div>
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-3.5 w-56 mt-1.5" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto p-6 space-y-6 max-w-3xl">
+        {/* General Info card skeleton */}
+        <Card className="overflow-hidden">
+          <CardHeader className="flex-row items-center gap-2 space-y-0 pb-0 border-b py-4">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-36" />
+          </CardHeader>
+          <CardContent className="p-5 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-3.5 w-40" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Data & Storage card skeleton */}
+        <Card className="overflow-hidden">
+          <CardHeader className="flex-row items-center gap-2 space-y-0 pb-0 border-b py-4">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-28" />
+          </CardHeader>
+          <CardContent className="p-5 space-y-4">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="h-3.5 w-48" />
+              </div>
+            ))}
+            <div className="pt-2 space-y-3">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-[110px] rounded" />
+                <Skeleton className="h-8 w-[150px] rounded" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Appearance card skeleton */}
+        <Card className="overflow-hidden">
+          <CardHeader className="flex-row items-center gap-2 space-y-0 pb-0 border-b py-4">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-24" />
+          </CardHeader>
+          <CardContent className="p-5 space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                <Skeleton className="h-3.5 w-20" />
+                <Skeleton className="h-3.5 w-44" />
+              </div>
+            ))}
+            <div className="flex items-center gap-2 pt-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="w-6 h-6 rounded" />
+              ))}
+              <Skeleton className="h-3 w-20 ml-2" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone card skeleton */}
+        <Card className="overflow-hidden border-destructive/30">
+          <CardHeader className="flex-row items-center gap-2 space-y-0 pb-0 border-b border-destructive/30 bg-destructive/5 py-4">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-24" />
+          </CardHeader>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-3 w-64 mt-1" />
+              </div>
+              <Skeleton className="h-8 w-[100px] rounded" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
 // ── Backlog Page Skeleton ───────────────────────────────────────
 
 export function BacklogPageSkeleton() {

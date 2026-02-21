@@ -1,5 +1,7 @@
 import { useMemo } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
+import { useProjects } from "@/hooks/useProjects"
+import { ReportsPageSkeleton } from "@/components/skeletons/PageSkeletons"
 import { TASK_STATUS_CONFIG, PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -15,6 +17,7 @@ import {
 
 export default function ReportsPage() {
   const { state } = useProjectContext()
+  const { isLoading } = useProjects()
 
   const stats = useMemo(() => {
     const projects = state.projects
@@ -83,6 +86,10 @@ export default function ReportsPage() {
     stats.tasksByStatus.done,
     1
   )
+
+  if (isLoading && state.projects.length === 0) {
+    return <ReportsPageSkeleton />
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">

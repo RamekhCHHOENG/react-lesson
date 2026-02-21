@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ProjectProvider } from "@/store/ProjectContext"
 import { AuthProvider, useAuth } from "@/store/AuthContext"
 import { Sidebar, TopNav } from "@/components/layout"
+import { ProjectFormDialog } from "@/features/projects/components"
+import { useProjects } from "@/hooks/useProjects"
 import LoginPage from "@/features/auth/LoginPage"
 import ProjectManagementPage from "@/features/projects/ProjectManagementPage"
 import BoardPage from "@/features/board/BoardPage"
@@ -24,10 +26,11 @@ type Page = "projects" | "board" | "backlog" | "reports" | "settings"
 
 function Dashboard() {
   const [activePage, setActivePage] = useState<Page>("projects")
-  const [createTrigger, setCreateTrigger] = useState(0)
+  const [createProjectOpen, setCreateProjectOpen] = useState(false)
+  const { createProject, isCreating } = useProjects()
 
   const handleCreate = useCallback(() => {
-    setCreateTrigger((p) => p + 1)
+    setCreateProjectOpen(true)
   }, [])
 
   const handleNavigate = useCallback((page: string) => {
@@ -37,15 +40,15 @@ function Dashboard() {
   const renderPage = () => {
     switch (activePage) {
       case "board":
-        return <BoardPage createTrigger={createTrigger} />
+        return <BoardPage />
       case "backlog":
-        return <BacklogPage createTrigger={createTrigger} />
+        return <BacklogPage />
       case "reports":
         return <ReportsPage />
       case "settings":
         return <SettingsPage />
       default:
-        return <ProjectManagementPage createTrigger={createTrigger} />
+        return <ProjectManagementPage />
     }
   }
 
@@ -56,6 +59,15 @@ function Dashboard() {
         <TopNav activePage={activePage} onCreateProject={handleCreate} onNavigate={handleNavigate} />
         <main className="flex-1 overflow-hidden">{renderPage()}</main>
       </div>
+
+      {/* Global "Create Project" dialog – opened by TopNav Create button on ANY page */}
+      <ProjectFormDialog
+        open={createProjectOpen}
+        onClose={() => setCreateProjectOpen(false)}
+        onSubmit={(data) => createProject(data)}
+        title="Create project"
+        isLoading={isCreating}
+      />
     </div>
   )
 }

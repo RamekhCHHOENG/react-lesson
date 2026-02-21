@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
+import { useProjects } from "@/hooks/useProjects"
+import { SettingsPageSkeleton } from "@/components/skeletons/PageSkeletons"
 import { api } from "@/services/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,6 +19,7 @@ import {
 
 export default function SettingsPage() {
   const { state, dispatch } = useProjectContext()
+  const { isLoading } = useProjects()
   const queryClient = useQueryClient()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [storageInfo, setStorageInfo] = useState({ size: "0 B", projectCount: 0, taskCount: 0 })
@@ -57,6 +60,10 @@ export default function SettingsPage() {
     a.download = `projecthub-export-${new Date().toISOString().split("T")[0]}.json`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  if (isLoading && state.projects.length === 0) {
+    return <SettingsPageSkeleton />
   }
 
   return (

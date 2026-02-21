@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useProjects } from "@/hooks/useProjects"
 import { useProjectContext } from "@/store/ProjectContext"
 import {
@@ -13,11 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, FolderKanban } from "lucide-react"
 import type { Project, ProjectFormData, ProjectStats, ProjectStatus, ProjectPriority } from "@/types/project"
 
-interface Props {
- createTrigger?: number
-}
-
-export default function ProjectManagementPage({ createTrigger }: Props) {
+export default function ProjectManagementPage() {
  const { state } = useProjectContext()
  const { createProject, updateProject, deleteProject, isCreating, isUpdating, isLoading } = useProjects()
 
@@ -29,13 +25,6 @@ export default function ProjectManagementPage({ createTrigger }: Props) {
  const [search, setSearch] = useState("")
  const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all")
  const [priorityFilter, setPriorityFilter] = useState<ProjectPriority | "all">("all")
-
- // Open create dialog from TopNav "Create" button
- useEffect(() => {
- if (createTrigger && createTrigger > 0) {
- setCreateDialogOpen(true)
- }
- }, [createTrigger])
 
  const stats = useMemo<ProjectStats>(() => {
  const p = state.projects

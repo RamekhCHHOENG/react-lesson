@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect } from "react"
+import { useState, useRef, useMemo } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
 import { useTaskActions, useProjects } from "@/hooks/useProjects"
 import { BoardPageSkeleton } from "@/components/skeletons/PageSkeletons"
@@ -22,11 +22,7 @@ interface BoardTask extends Task {
   projectName: string
 }
 
-interface Props {
-  createTrigger?: number
-}
-
-export default function BoardPage({ createTrigger }: Props) {
+export default function BoardPage() {
   const { state } = useProjectContext()
   const { isLoading } = useProjects()
   const { updateTask, deleteTask: apiDeleteTask, addTask } = useTaskActions()
@@ -37,20 +33,6 @@ export default function BoardPage({ createTrigger }: Props) {
   const [createForProject, setCreateForProject] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
   const [deleteTarget, setDeleteTarget] = useState<BoardTask | null>(null)
-
-  // Open create dialog from TopNav "Create" button
-  useEffect(() => {
-    if (createTrigger && createTrigger > 0) {
-      const targetProject = selectedProjectId !== "all"
-        ? selectedProjectId
-        : state.projects[0]?.id
-      if (targetProject) {
-        setCreateForProject(targetProject)
-        setEditingTask(null)
-        setTaskDialogOpen(true)
-      }
-    }
-  }, [createTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const allTasks = useMemo<BoardTask[]>(() => {
     return state.projects.flatMap((project) =>
