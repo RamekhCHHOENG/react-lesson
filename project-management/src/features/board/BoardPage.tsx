@@ -5,6 +5,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import { BOARD_COLUMNS, TaskCard } from "@/features/projects/components/ProjectDetail"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
 import type { Task, TaskStatus } from "@/types/project"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Select } from "@/components/ui/select"
 import { LayoutDashboard, Plus } from "lucide-react"
 
 interface BoardTask extends Task {
@@ -22,7 +25,6 @@ export default function BoardPage() {
   const [createForProject, setCreateForProject] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all")
 
-  // Collect all tasks across all projects
   const allTasks = useMemo<BoardTask[]>(() => {
     return state.projects.flatMap((project) =>
       project.tasks.map((task) => ({
@@ -105,19 +107,18 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#FAFBFC]">
-
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-[#DFE1E6] shrink-0">
+      <div className="bg-card border-b shrink-0">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-[#0052CC] to-[#0065FF]">
-                <LayoutDashboard className="h-4 w-4 text-white" />
+              <div className="flex items-center justify-center w-8 h-8 rounded bg-gradient-to-br from-primary to-blue-500">
+                <LayoutDashboard className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-[#172B4D]">Board</h1>
-                <p className="text-sm text-[#6B778C] mt-0.5">
+                <h1 className="text-xl font-semibold text-foreground">Board</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   {filteredTasks.length} issue{filteredTasks.length !== 1 ? "s" : ""} across{" "}
                   {selectedProjectId === "all"
                     ? `${state.projects.length} projects`
@@ -126,10 +127,10 @@ export default function BoardPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <select
+              <Select
                 value={selectedProjectId}
                 onChange={(e) => setSelectedProjectId(e.target.value)}
-                className="h-8 px-3 rounded border border-[#DFE1E6] bg-white text-sm text-[#172B4D] focus:border-[#4C9AFF] focus:ring-1 focus:ring-[#4C9AFF] outline-none"
+                className="h-8 w-[180px] text-sm"
               >
                 <option value="all">All projects</option>
                 {state.projects.map((p) => (
@@ -137,9 +138,10 @@ export default function BoardPage() {
                     {p.name}
                   </option>
                 ))}
-              </select>
+              </Select>
               {state.projects.length > 0 && (
-                <button
+                <Button
+                  size="sm"
                   onClick={() => {
                     const targetProject = selectedProjectId !== "all"
                       ? selectedProjectId
@@ -150,11 +152,10 @@ export default function BoardPage() {
                       setTaskDialogOpen(true)
                     }
                   }}
-                  className="flex items-center gap-1.5 h-8 px-3 rounded bg-[#0052CC] hover:bg-[#0065FF] text-white text-sm font-medium transition-colors"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Create issue
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -165,9 +166,9 @@ export default function BoardPage() {
       <div className="flex-1 overflow-auto p-6">
         {state.projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <LayoutDashboard className="h-12 w-12 text-[#DFE1E6] mb-4" />
-            <h3 className="text-base font-medium text-[#172B4D]">No projects yet</h3>
-            <p className="text-sm text-[#6B778C] mt-1">
+            <LayoutDashboard className="h-12 w-12 text-muted-foreground/40 mb-4" />
+            <h3 className="text-base font-medium text-foreground">No projects yet</h3>
+            <p className="text-sm text-muted-foreground mt-1">
               Create a project first, then add issues to see them here.
             </p>
           </div>
@@ -178,8 +179,8 @@ export default function BoardPage() {
                 key={column.key}
                 className={`flex flex-col w-[280px] min-w-[280px] rounded transition-colors ${
                   dragOverColumn === column.key
-                    ? "bg-[#E9F2FF] ring-2 ring-[#4C9AFF] ring-inset"
-                    : "bg-[#F4F5F7]"
+                    ? "bg-accent ring-2 ring-ring"
+                    : "bg-muted/50"
                 }`}
                 onDragOver={(e) => handleDragOver(e, column.key)}
                 onDragLeave={handleDragLeave}
@@ -193,15 +194,15 @@ export default function BoardPage() {
                     >
                       {column.label}
                     </span>
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#DFE1E6] text-[10px] font-bold text-[#42526E]">
+                    <Badge variant="secondary" className="h-5 min-w-[20px] px-1.5 text-[10px] font-bold">
                       {column.tasks.length}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
                   {column.tasks.length === 0 ? (
-                    <div className="flex items-center justify-center py-8 text-xs text-[#A5ADBA]">
+                    <div className="flex items-center justify-center py-8 text-xs text-muted-foreground/60">
                       Drop issues here
                     </div>
                   ) : (
@@ -215,7 +216,7 @@ export default function BoardPage() {
                             draggable
                             onDragStart={handleDragStart}
                           />
-                          <div className="absolute bottom-1 left-3 text-[9px] text-[#A5ADBA] font-medium">
+                          <div className="absolute bottom-1 left-3 text-[9px] text-muted-foreground/60 font-medium">
                             {(task as BoardTask).projectName}
                           </div>
                         </div>

@@ -1,5 +1,7 @@
-import { Search, Bell, HelpCircle, Settings, Plus } from "lucide-react"
+import { Search, Bell, HelpCircle, Settings, Plus, LogOut } from "lucide-react"
 import { useState } from "react"
+import { useAuth } from "@/store/AuthContext"
+import { Button } from "@/components/ui/button"
 
 const PAGE_LABELS: Record<string, string> = {
   projects: "Projects",
@@ -16,15 +18,19 @@ interface TopNavProps {
 
 export function TopNav({ onCreateProject, activePage = "projects" }: TopNavProps) {
   const [searchFocused, setSearchFocused] = useState(false)
+  const { user, logout } = useAuth()
   const pageLabel = PAGE_LABELS[activePage] ?? "Projects"
+  const initials = user?.name
+    ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
+    : "U"
 
   return (
-    <header className="flex items-center justify-between h-14 px-4 bg-white border-b border-[#DFE1E6] shrink-0 z-10">
+    <header className="flex items-center justify-between h-14 px-4 bg-card border-b shrink-0 z-10">
       {/* Left section - breadcrumb */}
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-[#6B778C] hover:text-[#172B4D] cursor-pointer transition-colors">ProjectHub</span>
-        <span className="text-[#6B778C]">/</span>
-        <span className="font-medium text-[#172B4D]">{pageLabel}</span>
+        <span className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">ProjectHub</span>
+        <span className="text-muted-foreground">/</span>
+        <span className="font-medium text-foreground">{pageLabel}</span>
       </div>
 
       {/* Right section */}
@@ -33,13 +39,13 @@ export function TopNav({ onCreateProject, activePage = "projects" }: TopNavProps
         <div
           className={`flex items-center gap-2 rounded px-2.5 h-8 transition-all border ${
             searchFocused
-              ? "border-[#4C9AFF] bg-white w-[280px]"
-              : "border-transparent bg-[#F4F5F7] hover:bg-[#EBECF0] w-[200px]"
+              ? "border-ring bg-card w-[280px]"
+              : "border-transparent bg-muted hover:bg-accent w-[200px]"
           }`}
         >
-          <Search className="h-3.5 w-3.5 text-[#6B778C] shrink-0" />
+          <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <input
-            className="bg-transparent border-0 outline-none text-sm text-[#172B4D] placeholder:text-[#6B778C] w-full"
+            className="bg-transparent border-0 outline-none text-sm text-foreground placeholder:text-muted-foreground w-full"
             placeholder="Search"
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
@@ -47,28 +53,36 @@ export function TopNav({ onCreateProject, activePage = "projects" }: TopNavProps
         </div>
 
         {/* Create button */}
-        <button
-          onClick={onCreateProject}
-          className="flex items-center gap-1.5 h-8 px-3 rounded bg-[#0052CC] hover:bg-[#0065FF] text-white text-sm font-medium transition-colors ml-2"
-        >
+        <Button size="sm" onClick={onCreateProject} className="ml-2">
           <Plus className="h-3.5 w-3.5" />
           <span>Create</span>
-        </button>
+        </Button>
 
         {/* Icons */}
-        <button className="flex items-center justify-center h-8 w-8 rounded hover:bg-[#EBECF0] text-[#42526E] transition-colors ml-1">
+        <Button variant="ghost" size="icon" className="h-8 w-8 ml-1">
           <Bell className="h-[18px] w-[18px]" />
-        </button>
-        <button className="flex items-center justify-center h-8 w-8 rounded hover:bg-[#EBECF0] text-[#42526E] transition-colors">
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
           <HelpCircle className="h-[18px] w-[18px]" />
-        </button>
-        <button className="flex items-center justify-center h-8 w-8 rounded hover:bg-[#EBECF0] text-[#42526E] transition-colors">
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
           <Settings className="h-[18px] w-[18px]" />
-        </button>
+        </Button>
+
+        {/* Logout */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+          onClick={logout}
+          title="Sign out"
+        >
+          <LogOut className="h-[18px] w-[18px]" />
+        </Button>
 
         {/* User avatar */}
-        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-[#00875A] text-white text-xs font-bold ml-1 cursor-pointer hover:opacity-90 transition-opacity">
-          U
+        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-xs font-bold ml-1 cursor-pointer hover:opacity-90 transition-opacity" title={user?.email ?? ""}>
+          {initials}
         </div>
       </div>
     </header>
