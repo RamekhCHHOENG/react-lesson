@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
-import { useTaskActions } from "@/hooks/useProjects"
+import { useTaskActions, useProjects } from "@/hooks/useProjects"
+import { BoardPageSkeleton } from "@/components/skeletons/PageSkeletons"
 import { BOARD_COLUMNS, TaskCard } from "@/features/projects/components/ProjectDetail"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
@@ -27,6 +28,7 @@ interface Props {
 
 export default function BoardPage({ createTrigger }: Props) {
   const { state } = useProjectContext()
+  const { isLoading } = useProjects()
   const { updateTask, deleteTask: apiDeleteTask, addTask } = useTaskActions()
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null)
   const dragTaskRef = useRef<{ task: BoardTask; sourceColumn: TaskStatus } | null>(null)
@@ -128,6 +130,10 @@ export default function BoardPage({ createTrigger }: Props) {
     if (!deleteTarget) return
     apiDeleteTask(deleteTarget.projectId, deleteTarget.id)
     setDeleteTarget(null)
+  }
+
+  if (isLoading && state.projects.length === 0) {
+    return <BoardPageSkeleton />
   }
 
   return (

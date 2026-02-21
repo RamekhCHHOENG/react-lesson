@@ -13,7 +13,7 @@ import { db } from "./db"
 import type { ProjectFormData, TaskFormData } from "@/types/project"
 
 // Simulated network latency (ms) — makes it feel like a real API
-const API_DELAY = 120
+const API_DELAY = 200
 
 export const handlers = [
   // ── GET /api/projects ──────────────────────────────────────

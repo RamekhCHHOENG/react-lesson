@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useProjectContext } from "@/store/ProjectContext"
-import { useTaskActions } from "@/hooks/useProjects"
+import { useTaskActions, useProjects } from "@/hooks/useProjects"
+import { BacklogPageSkeleton } from "@/components/skeletons/PageSkeletons"
 import { formatDate } from "@/lib/utils"
 import { TaskFormDialog } from "@/features/projects/components/TaskFormDialog"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
@@ -124,6 +125,7 @@ interface Props {
 
 export default function BacklogPage({ createTrigger }: Props) {
   const { state } = useProjectContext()
+  const { isLoading } = useProjects()
   const { updateTask, deleteTask, addTask } = useTaskActions()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all")
@@ -205,6 +207,10 @@ export default function BacklogPage({ createTrigger }: Props) {
   }
 
   const backlogCount = allTasks.filter((t) => t.status === "todo").length
+
+  if (isLoading && state.projects.length === 0) {
+    return <BacklogPageSkeleton />
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">

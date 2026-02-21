@@ -8,6 +8,7 @@ import {
  ProjectDetail,
  ProjectFilters,
 } from "./components"
+import { ProjectsPageSkeleton } from "@/components/skeletons/PageSkeletons"
 import { Button } from "@/components/ui/button"
 import { Plus, FolderKanban } from "lucide-react"
 import type { Project, ProjectFormData, ProjectStats, ProjectStatus, ProjectPriority } from "@/types/project"
@@ -18,7 +19,7 @@ interface Props {
 
 export default function ProjectManagementPage({ createTrigger }: Props) {
  const { state } = useProjectContext()
- const { createProject, updateProject, deleteProject, isCreating, isUpdating } = useProjects()
+ const { createProject, updateProject, deleteProject, isCreating, isUpdating, isLoading } = useProjects()
 
  const [createDialogOpen, setCreateDialogOpen] = useState(false)
  const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -107,6 +108,11 @@ export default function ProjectManagementPage({ createTrigger }: Props) {
  if (!viewingProject) return null
  return state.projects.find((p) => p.id === viewingProject.id) ?? null
  }, [state.projects, viewingProject])
+
+ /* ── Loading skeleton ── */
+ if (isLoading && state.projects.length === 0) {
+ return <ProjectsPageSkeleton />
+ }
 
  /* ── Detail view ── */
  if (currentViewProject) {
