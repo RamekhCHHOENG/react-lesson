@@ -5,7 +5,7 @@ import {
  StatsOverview,
  ProjectCard,
  ProjectFormDialog,
- ProjectDetail,
+ ProjectDetailDrawer,
  ProjectFilters,
 } from "./components"
 import { ProjectsPageSkeleton } from "@/components/skeletons/PageSkeletons"
@@ -103,32 +103,6 @@ export default function ProjectManagementPage() {
  return <ProjectsPageSkeleton />
  }
 
- /* ── Detail view ── */
- if (currentViewProject) {
- return (
- <div className="h-full flex flex-col bg-background">
- <div className="flex-1 overflow-auto p-6">
- <ProjectDetail
- project={currentViewProject}
- onBack={() => setViewingProject(null)}
- onEdit={() => handleEdit(currentViewProject.id)}
- />
- </div>
- <ProjectFormDialog
- open={editDialogOpen}
- onClose={() => {
- setEditDialogOpen(false)
- setEditingProject(null)
- }}
- onSubmit={handleUpdate}
- initialData={editingProject ?? undefined}
- title="Edit Project"
- isLoading={isUpdating}
- />
- </div>
- )
- }
-
  /* ── List view ── */
  return (
  <div className="h-full flex flex-col bg-background">
@@ -223,6 +197,13 @@ export default function ProjectManagementPage() {
  initialData={editingProject ?? undefined}
  title="Edit project"
  isLoading={isUpdating}
+ />
+
+ <ProjectDetailDrawer
+ project={currentViewProject}
+ open={!!currentViewProject}
+ onClose={() => setViewingProject(null)}
+ onEdit={handleEdit}
  />
  </div>
  )
