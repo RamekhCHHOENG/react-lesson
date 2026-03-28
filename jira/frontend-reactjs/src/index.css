@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "San Francisco Pro", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 3px;
+  --background: #ffffff;
+  --foreground: #172b4d;
+  --card: #ffffff;
+  --card-foreground: #172b4d;
+  --popover: #ffffff;
+  --popover-foreground: #172b4d;
+  --primary: #0052cc;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f5f7;
+  --secondary-foreground: #172b4d;
+  --muted: #f4f5f7;
+  --muted-foreground: #6b778c;
+  --accent: #ebecf0;
+  --accent-foreground: #172b4d;
+  --destructive: #de350b;
+  --border: #dfe1e6;
+  --input: #fafbfc;
+  --ring: #0052cc;
+  --chart-1: #0052cc;
+  --chart-2: #36b37e;
+  --chart-3: #ff5630;
+  --chart-4: #ffab00;
+  --chart-5: #00b8d9;
+  --sidebar: #f7f8f9;
+  --sidebar-foreground: #42526e;
+  --sidebar-primary: #0052cc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebecf0;
+  --sidebar-accent-foreground: #172b4d;
+  --sidebar-border: #dfe1e6;
+  --sidebar-ring: #0052cc;
+}
+
+.dark {
+  --background: #1d2125;
+  --foreground: #f1f2f4;
+  --card: #22272b;
+  --card-foreground: #f1f2f4;
+  --popover: #282e33;
+  --popover-foreground: #f1f2f4;
+  --primary: #579dff;
+  --primary-foreground: #0f1419;
+  --secondary: #2c333a;
+  --secondary-foreground: #dfe1e6;
+  --muted: #282e33;
+  --muted-foreground: #9fadbc;
+  --accent: #2f3841;
+  --accent-foreground: #f1f2f4;
+  --destructive: #f87168;
+  --border: #31373F;
+  --input: #22272B;
+  --ring: #579dff;
+  --chart-1: #579dff;
+  --chart-2: #8fb746;
+  --chart-3: #c97cf4;
+  --chart-4: #f5cd47;
+  --chart-5: #ff9f5a;
+  --sidebar: #1d2125;
+  --sidebar-foreground: #c1c7d0;
+  --sidebar-primary: #579dff;
+  --sidebar-primary-foreground: #0f1419;
+  --sidebar-accent: #2c333a;
+  --sidebar-accent-foreground: #f1f2f4;
+  --sidebar-border: #31373F;
+  --sidebar-ring: #579dff;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: light dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-200;
+    font-family: "San Francisco Pro", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
+    min-height: 100vh;
+  }
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .jira-panel {
+    @apply rounded-[3px] border border-border bg-card shadow-sm transition-all;
+  }
+
+  .jira-panel-muted {
+    @apply rounded-[3px] border border-border bg-muted/50;
+  }
+
+  .jira-card {
+    @apply rounded-[3px] border border-border bg-card p-5 shadow-[0_1px_1px_rgba(0,0,0,0.1),0_0_1px_rgba(0,0_0,0.1)] transition-all hover:shadow-[0_4px_8px_-2px_rgba(9,30,66,0.25),0_0_1px_rgba(9,30,66,0.31)];
+  }
+
+  .jira-filter-chip {
+    @apply inline-flex h-8 items-center gap-2 rounded-[3px] border border-border bg-secondary px-3 text-sm text-foreground transition-colors hover:bg-accent hover:border-accent-foreground/20;
+  }
+
+  .jira-icon-button {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-[3px] text-[#8590A2] transition-colors hover:bg-[#2c333a] hover:text-[#dfe1e6];
+  }
+}
+
+::selection {
+  background: rgba(87, 157, 255, 0.35);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #31373f;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #454f59;
+}
+
+@layer utilities {
+  .jira-active-indicator {
+    @apply absolute left-0 top-1 bottom-1 w-[3px] rounded-r-[3px] bg-[#579dff] opacity-0 transition-opacity;
+  }
+}
