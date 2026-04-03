@@ -6,6 +6,10 @@ import { PageSkeleton } from "@/components/shared/PageSkeleton"
 import { ProtectedRoute, PublicRoute } from "@/components/shared/ProtectedRoute"
 
 const ForYouPage = lazy(() => import("@/features/home/ForYouPage"))
+const RecentPage = lazy(() => import("@/features/home/RecentPage"))
+const StarredPage = lazy(() => import("@/features/home/StarredPage"))
+const AppsPage = lazy(() => import("@/features/home/AppsPage"))
+const ProfilePage = lazy(() => import("@/features/home/ProfilePage"))
 const SummaryPage = lazy(() => import("@/features/summary/SummaryPage"))
 const BacklogPage = lazy(() => import("@/features/backlog/BacklogPage"))
 const BoardPage = lazy(() => import("@/features/board/BoardPage"))
@@ -19,6 +23,13 @@ const NotFoundPage = lazy(() => import("@/features/NotFoundPage"))
 const PlaceholderPage = lazy(() => import("@/features/home/PlaceholderPage"))
 const LoginPage = lazy(() => import("@/features/auth/LoginPage"))
 const RegisterPage = lazy(() => import("@/features/auth/RegisterPage"))
+const NotificationsPage = lazy(() => import("@/features/notifications/NotificationsPage"))
+const EpicsPage = lazy(() => import("@/features/epics/EpicsPage"))
+
+// Real feature pages (no more placeholders)
+const ReportsPage = lazy(() => import("@/features/reports/ReportsPage"))
+const ActivityFeedPage = lazy(() => import("@/features/activity/ActivityFeedPage"))
+const TeamPage = lazy(() => import("@/features/team/TeamPage"))
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
@@ -55,9 +66,9 @@ export const router = createBrowserRouter([
           { path: "/support", element: <LazyPage><SupportPage /></LazyPage> },
 
           // Placeholder Routes directly tied to new TopNav & Sidebar
-          { path: "/recent", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/starred", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/apps", element: <LazyPage><PlaceholderPage /></LazyPage> },
+          { path: "/recent", element: <LazyPage><RecentPage /></LazyPage> },
+          { path: "/starred", element: <LazyPage><StarredPage /></LazyPage> },
+          { path: "/apps", element: <LazyPage><AppsPage /></LazyPage> },
           { path: "/plans", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/queues", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/queues/all", element: <LazyPage><PlaceholderPage /></LazyPage> },
@@ -76,13 +87,14 @@ export const router = createBrowserRouter([
           { path: "/projects/:projectId", element: <Navigate to="/summary" replace /> },
           { path: "/projects/:projectId/tasks/:taskId", element: <Navigate to="/board" replace /> },
           { path: "/sprints", element: <Navigate to="/backlog" replace /> },
-          { path: "/team", element: <Navigate to="/teams" replace /> },
-          { path: "/reports", element: <Navigate to="/timeline" replace /> },
+          { path: "/team", element: <LazyPage><TeamPage /></LazyPage> },
+          { path: "/teams", element: <LazyPage><TeamPage /></LazyPage> },
+          { path: "/reports", element: <LazyPage><ReportsPage /></LazyPage> },
+          { path: "/activity", element: <LazyPage><ActivityFeedPage /></LazyPage> },
           { path: "/settings", element: <Navigate to="/forms" replace /> },
-          { path: "/notifications", element: <Navigate to="/support" replace /> },
-          { path: "/epics", element: <Navigate to="/timeline" replace /> },
-          { path: "/profile", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/activity", element: <Navigate to="/summary" replace /> },
+          { path: "/notifications", element: <LazyPage><NotificationsPage /></LazyPage> },
+          { path: "/epics", element: <LazyPage><EpicsPage /></LazyPage> },
+          { path: "/profile", element: <LazyPage><ProfilePage /></LazyPage> },
         ],
       },
     ],

@@ -1,48 +1,87 @@
-import { useState } from "react"
-import { Bell, CheckSquare2, Sparkles } from "lucide-react"
+import { useState, useMemo, useCallback, memo } from "react"
+import { Bell, CheckSquare2, Sparkles, TrendingUp, Clock, Zap, BarChart3 } from "lucide-react"
 import { useAuth } from "@/store/auth"
 import { useProjectContext } from "@/store/project-context"
 import { timeAgo } from "@/lib/utils"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type TabKey = "worked" | "viewed" | "assigned" | "starred" | "boards"
 
 export default function ForYouPage() {
   const { user } = useAuth()
   const { projects, selectedProject, isLoading } = useProjectContext()
-  const [activeTab, setActiveTab] = useState<TabKey>("worked")
+  const [activeTab, setActiveTab] = useLocalStorage<TabKey>("jira-foryou-tab", "worked")
+
+  const handleTabChange = useCallback((tab: TabKey) => {
+    setActiveTab(tab)
+  }, [setActiveTab])
 
   if (isLoading) {
-    return <div className="p-8 text-sm text-[#9fadbc]">Loading workspace...</div>
+    return (
+      <div className="px-6 py-8 md:px-11 space-y-6">
+        <Skeleton className="h-12 w-64" />
+        <div className="grid gap-4 md:grid-cols-4">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <Skeleton className="h-48" />
+        <Skeleton className="h-64" />
+      </div>
+    )
   }
 
   const project = selectedProject ?? projects[0] ?? null
 
-  const allTasks = projects
-    .flatMap((item) => item.tasks.map((task) => ({ ...task, projectName: item.name })))
+  // useMemo — expensive task computation
+  const allTasks = useMemo(() =>
+    projects.flatMap((item) => item.tasks.map((task) => ({ ...task, projectName: item.name }))),
+    [projects],
+  )
 
-  const filteredTasks = (() => {
+  const filteredTasks = useMemo(() => {
     const userName = user?.full_name ?? ""
+    const sortByDate = (a: typeof allTasks[0], b: typeof allTasks[0]) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+
     switch (activeTab) {
       case "assigned":
-        return allTasks.filter((t) => t.assignee === userName).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        return allTasks.filter((t) => t.assignee === userName).sort(sortByDate)
       case "starred":
-        return allTasks.filter((t) => t.priority === "urgent" || t.priority === "high").sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        return allTasks.filter((t) => t.priority === "urgent" || t.priority === "high").sort(sortByDate)
       case "boards":
-        return allTasks.filter((t) => t.status === "in-progress" || t.status === "review").sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-      default: // worked, viewed
-        return allTasks.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        return allTasks.filter((t) => t.status === "in-progress" || t.status === "review").sort(sortByDate)
+      default:
+        return [...allTasks].sort(sortByDate)
     }
-  })()
+  }, [allTasks, activeTab, user?.full_name])
+
+  // useMemo — dashboard stats
+  const stats = useMemo(() => {
+    const total = allTasks.length
+    const done = allTasks.filter((t) => t.status === "done").length
+    const inProgress = allTasks.filter((t) => t.status === "in-progress" || t.status === "review").length
+    const highPriority = allTasks.filter((t) => t.priority === "urgent" || t.priority === "high").length
+    return { total, done, inProgress, highPriority, completionRate: total > 0 ? Math.round((done / total) * 100) : 0 }
+  }, [allTasks])
 
   const recentTasks = filteredTasks
 
-  const todayItems = recentTasks.slice(0, 2)
-  const monthItems = recentTasks.slice(2, 6)
+  const todayItems = recentTasks.slice(0, 3)
+  const monthItems = recentTasks.slice(3, 8)
 
   return (
     <div className="px-6 py-8 md:px-11">
       <div className="mb-8">
         <h1 className="text-[42px] font-semibold tracking-[-0.03em] text-white">For you</h1>
+        <p className="text-sm text-[#9fadbc] mt-1">Welcome back, {user?.full_name ?? "there"}</p>
+      </div>
+
+      {/* Quick Stats — using useMemo computed values */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <QuickStatCard icon={BarChart3} label="Total Issues" value={stats.total} color="text-blue-400" />
+        <QuickStatCard icon={CheckSquare2} label="Completed" value={`${stats.completionRate}%`} color="text-green-400" />
+        <QuickStatCard icon={TrendingUp} label="In Progress" value={stats.inProgress} color="text-yellow-400" />
+        <QuickStatCard icon={Zap} label="High Priority" value={stats.highPriority} color="text-red-400" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
@@ -72,20 +111,14 @@ export default function ForYouPage() {
 
           <section className="mt-7">
             <div className="mb-3 flex items-center gap-6 border-b border-white/8 text-sm text-[#9fadbc]">
-              {([
-                ["worked", "Worked on"],
-                ["viewed", "Viewed"],
-                ["assigned", "Assigned to me"],
-                ["starred", "Starred"],
-                ["boards", "Boards"],
-              ] as const).map(([key, label]) => (
+              {(["worked", "viewed", "assigned", "starred", "boards"] as const).map((key) => (
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setActiveTab(key)}
+                  onClick={() => handleTabChange(key)}
                   className={activeTab === key ? "border-b-2 border-[#579dff] pb-3 font-medium text-[#85b8ff]" : "pb-3"}
                 >
-                  {label}
+                  {{worked:"Worked on",viewed:"Viewed",assigned:"Assigned to me",starred:"Starred",boards:"Boards"}[key]}
                 </button>
               ))}
             </div>
@@ -133,7 +166,31 @@ export default function ForYouPage() {
   )
 }
 
-function TaskGroup({
+// React.memo — QuickStatCard only re-renders when its props change
+const QuickStatCard = memo(function QuickStatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string | number
+  color: string
+}) {
+  return (
+    <div className="rounded-lg border border-white/8 bg-[#22272b] p-4 transition-all hover:border-white/15 hover:bg-[#272d33]">
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className={`h-4 w-4 ${color}`} />
+        <span className="text-xs text-[#9fadbc]">{label}</span>
+      </div>
+      <div className="text-2xl font-bold text-white">{value}</div>
+    </div>
+  )
+})
+
+// React.memo — TaskGroup prevents re-renders unless items change
+const TaskGroup = memo(function TaskGroup({
   label,
   items,
 }: {
@@ -166,4 +223,4 @@ function TaskGroup({
       </div>
     </div>
   )
-}
+})

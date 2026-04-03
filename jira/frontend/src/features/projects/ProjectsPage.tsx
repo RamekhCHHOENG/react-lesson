@@ -106,7 +106,7 @@ export default function ProjectsPage() {
 }
 
 function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
-  const status = PROJECT_STATUS_CONFIG[project.status]
+  const status = PROJECT_STATUS_CONFIG[project.status] ?? { label: project.status, color: "text-gray-700", bgColor: "bg-gray-100" }
   const done = project.tasks.filter((t) => t.status === "done").length
   const total = project.tasks.length
   const progress = total > 0 ? Math.round((done / total) * 100) : 0

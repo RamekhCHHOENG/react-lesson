@@ -96,7 +96,7 @@ export default function ProjectDetailPage() {
 
   if (!project) return null
 
-  const statusConfig = PROJECT_STATUS_CONFIG[project.status]
+  const statusConfig = PROJECT_STATUS_CONFIG[project.status] ?? { label: project.status, color: "text-gray-700", bgColor: "bg-gray-100" }
 
   return (
     <div className="min-h-screen bg-background p-8 pb-20 animate-in fade-in duration-500">

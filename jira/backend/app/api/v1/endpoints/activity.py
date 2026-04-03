@@ -25,13 +25,19 @@ def _serialize(a: ActivityLog) -> dict:
 async def list_activity(
     entity_type: str | None = Query(None),
     entity_id: str | None = Query(None),
+    project_id: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    query = select(ActivityLog).order_by(ActivityLog.created_at.desc()).limit(100)
+    query = select(ActivityLog).order_by(ActivityLog.created_at.desc())
     if entity_type:
         query = query.where(ActivityLog.entity_type == entity_type)
     if entity_id:
         query = query.where(ActivityLog.entity_id == entity_id)
+    if project_id:
+        query = query.where(ActivityLog.project_id == project_id)
+    query = query.limit(limit).offset(offset)
     result = await db.execute(query)
     return [_serialize(a) for a in result.scalars().all()]

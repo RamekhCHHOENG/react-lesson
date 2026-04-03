@@ -130,8 +130,8 @@ export function JiraWorkspaceFrame({ children, tab }: JiraWorkspaceFrameProps) {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-8 pt-6 custom-scrollbar bg-background">
-        <div className="max-w-[1600px] mx-auto w-full">
+      <main className={cn("flex-1 px-8 pt-6 custom-scrollbar bg-background", tab === "board" ? "overflow-hidden flex flex-col" : "overflow-y-auto")}>
+        <div className={cn("w-full", tab === "board" ? "flex-1 min-h-0 flex flex-col" : "max-w-[1600px] mx-auto")}>
            {children}
         </div>
       </main>

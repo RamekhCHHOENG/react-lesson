@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -39,12 +39,42 @@ async def _next_issue_key(db: AsyncSession, project: Project) -> str:
 
 
 @router.get("/{project_id}/tasks", response_model=list[TaskResponse])
-async def list_tasks(project_id: str, db: AsyncSession = Depends(get_db), _: User = Depends(get_current_user)):
-    result = await db.execute(
+async def list_tasks(
+    project_id: str,
+    status: str | None = Query(None, description="Filter by status"),
+    priority: str | None = Query(None, description="Filter by priority"),
+    assignee: str | None = Query(None, description="Filter by assignee name"),
+    issue_type: str | None = Query(None, description="Filter by issue type"),
+    sprint_id: str | None = Query(None, description="Filter by sprint"),
+    epic_id: str | None = Query(None, description="Filter by epic"),
+    search: str | None = Query(None, description="Search title/key"),
+    limit: int = Query(200, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    query = (
         select(Task).options(selectinload(Task.labels))
         .where(Task.project_id == project_id)
-        .order_by(Task.position, Task.created_at.desc())
     )
+    if status:
+        query = query.where(Task.status == status)
+    if priority:
+        query = query.where(Task.priority == priority)
+    if assignee:
+        query = query.where(Task.assignee == assignee)
+    if issue_type:
+        query = query.where(Task.issue_type == issue_type)
+    if sprint_id:
+        query = query.where(Task.sprint_id == sprint_id)
+    if epic_id:
+        query = query.where(Task.epic_id == epic_id)
+    if search:
+        pattern = f"%{search}%"
+        query = query.where(Task.title.ilike(pattern) | Task.issue_key.ilike(pattern))
+
+    query = query.order_by(Task.position, Task.created_at.desc()).limit(limit).offset(offset)
+    result = await db.execute(query)
     return [_serialize_task(t) for t in result.scalars().all()]
 
 

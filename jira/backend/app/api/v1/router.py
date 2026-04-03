@@ -4,7 +4,9 @@ from app.api.v1.endpoints import (
     activity,
     auth,
     comments,
+    dashboard,
     epics,
+    history,
     labels,
     members,
     notifications,
@@ -35,6 +37,8 @@ api_router.include_router(labels.router, prefix="/labels", tags=["labels"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(activity.router, prefix="/activity", tags=["activity"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(history.router, tags=["history"])
 
 # WebSocket
 api_router.include_router(ws.router, tags=["websocket"])

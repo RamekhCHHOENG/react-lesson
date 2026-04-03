@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Loader2 } from "lucide-react"
 import { useCreateEpic, useUpdateEpic } from "@/hooks/useEpics"
 import type { Epic, EpicFormData, EpicStatus } from "@/types"
@@ -155,21 +156,19 @@ export function EpicFormDialog({ open, onOpenChange, projectId, epic }: EpicForm
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="epic-start">Start Date</Label>
-              <Input
-                id="epic-start"
-                type="date"
+              <Label>Start Date</Label>
+              <DatePicker
                 value={form.start_date}
-                onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                onChange={(date) => setForm({ ...form, start_date: date })}
+                placeholder="Start date"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="epic-target">Target Date</Label>
-              <Input
-                id="epic-target"
-                type="date"
+              <Label>Target Date</Label>
+              <DatePicker
                 value={form.target_date}
-                onChange={(e) => setForm({ ...form, target_date: e.target.value })}
+                onChange={(date) => setForm({ ...form, target_date: date })}
+                placeholder="Target date"
               />
               {errors.target_date && <p className="text-xs text-destructive">{errors.target_date}</p>}
             </div>

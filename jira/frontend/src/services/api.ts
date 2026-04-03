@@ -6,7 +6,7 @@ const TOKEN_KEY = "jira_token";
 
 const API_BASE_URL =
   (import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env
-    ?.VITE_API_BASE_URL ?? "http://localhost:8000";
+    ?.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 export class ApiRequestError extends Error {
   status: number;

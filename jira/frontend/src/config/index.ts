@@ -58,6 +58,7 @@ export const PROJECT_STATUS_CONFIG: Record<
   { label: string; color: string; bgColor: string }
 > = {
   planning: { label: "Planning", color: "text-gray-700", bgColor: "bg-gray-100" },
+  active: { label: "Active", color: "text-blue-700", bgColor: "bg-blue-100" },
   "in-progress": { label: "In Progress", color: "text-blue-700", bgColor: "bg-blue-100" },
   "on-hold": { label: "On Hold", color: "text-yellow-700", bgColor: "bg-yellow-100" },
   completed: { label: "Completed", color: "text-green-700", bgColor: "bg-green-100" },

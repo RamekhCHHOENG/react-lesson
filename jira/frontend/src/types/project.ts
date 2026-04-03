@@ -10,6 +10,7 @@ import type { ProjectMember } from "./team";
 
 export type ProjectStatus =
   | "planning"
+  | "active"
   | "in-progress"
   | "on-hold"
   | "completed"
