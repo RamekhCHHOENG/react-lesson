@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react"
-import { CalendarIcon, X } from "lucide-react"
 import {
   Dialog,
   DialogContent,

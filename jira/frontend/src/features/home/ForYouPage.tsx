@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback, memo } from "react"
-import { Bell, CheckSquare2, Sparkles, TrendingUp, Clock, Zap, BarChart3 } from "lucide-react"
+import { useMemo, useCallback, memo } from "react"
+import { Bell, CheckSquare2, Sparkles, TrendingUp, Zap, BarChart3 } from "lucide-react"
 import { useAuth } from "@/store/auth"
 import { useProjectContext } from "@/store/project-context"
 import { timeAgo } from "@/lib/utils"

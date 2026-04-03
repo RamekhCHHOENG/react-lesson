@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode, type RefObject, memo } from "react"
+import { useState, useEffect, useRef, type ReactNode, memo } from "react"
 
 /**
  * VirtualList — Render Props Pattern

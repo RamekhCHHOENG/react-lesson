@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, memo, useRef, useEffect } from "react"
+import { useState, useMemo, useCallback, memo } from "react"
 import {
-  Minus, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
+  Minus, Plus, ChevronLeft, ChevronRight, ChevronDown,
   Filter as FilterIcon, Settings2, MoreHorizontal, Search, Zap,
   CheckSquare, Bug, BookOpen, GitBranch, GripVertical,
 } from "lucide-react"
@@ -26,7 +26,7 @@ type ZoomLevel = "weeks" | "months" | "quarters"
 
 const ZOOM_LEVELS: ZoomLevel[] = ["weeks", "months", "quarters"]
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-const ISSUE_TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ISSUE_TYPE_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   epic: Zap, story: BookOpen, task: CheckSquare, bug: Bug, subtask: GitBranch,
 }
 

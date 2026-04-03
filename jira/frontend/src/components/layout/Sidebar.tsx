@@ -15,7 +15,6 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle, onCreateClick }: SidebarProps) {
   const { selectedProject, projects, selectProject } = useProjectContext()
-  const project = selectedProject ?? projects[0] ?? null
   const location = useLocation()
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {

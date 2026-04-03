@@ -21,7 +21,7 @@ import { useUndoRedo } from "@/hooks/useUndoRedo"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { usePrevious } from "@/hooks/usePrevious"
 import { cn } from "@/lib/utils"
-import { TASK_PRIORITY_CONFIG, TASK_STATUS_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
+import { TASK_PRIORITY_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
 import type { Task, TaskStatus, IssueType, TaskPriority } from "@/types"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -199,7 +199,7 @@ const BoardPageInner = forwardRef<BoardHandle>(function BoardPageInner(_, ref) {
     if (!project || !inlineTitle.trim()) return
     await createTask.mutateAsync({
       projectId: project.id,
-      data: { title: inlineTitle, status, issue_type: "task", priority: "medium" },
+      data: { title: inlineTitle, status: status as TaskStatus, issue_type: "task", priority: "medium" },
     })
     setInlineTitle("")
     setShowCreateInline(null)

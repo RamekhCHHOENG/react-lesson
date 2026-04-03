@@ -1,8 +1,6 @@
 import { useMemo } from "react"
-import { useNavigate } from "react-router-dom"
 import { Clock, CheckSquare2, Bug, BookOpen, Zap, GitBranch, ArrowUp, ArrowDown, ArrowRight, ChevronsUp } from "lucide-react"
 import { useProjectContext } from "@/store/project-context"
-import { useAuth } from "@/store/auth"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -11,16 +9,15 @@ import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, ISSUE_TYPE_CONFIG } from "@/c
 import { timeAgo, cn } from "@/lib/utils"
 import type { Task } from "@/types"
 
-const ISSUE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ISSUE_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   bug: Bug, story: BookOpen, task: CheckSquare2, epic: Zap, subtask: GitBranch,
 }
-const PRIORITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const PRIORITY_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   urgent: ChevronsUp, high: ArrowUp, medium: ArrowRight, low: ArrowDown,
 }
 
 export default function RecentPage() {
   const { projects, isLoading } = useProjectContext()
-  const { user } = useAuth()
 
   const recentItems = useMemo(() => {
     const all = projects.flatMap((p) =>

@@ -11,10 +11,6 @@ import {
   BookOpen,
   GitBranch,
   TrendingUp,
-  ChevronsUp,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
   Users,
 } from "lucide-react"
 import { JiraWorkspaceFrame } from "@/components/jira/JiraWorkspaceFrame"
@@ -34,7 +30,6 @@ import {
   Title,
 } from "chart.js"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ISSUE_TYPE_CONFIG } from "@/config"
 

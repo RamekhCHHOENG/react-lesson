@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import {
   Search, Star, MoreHorizontal, X, ChevronLeft, ChevronRight,
   LayoutGrid, ClipboardList, Briefcase, ListTodo, Kanban,
-  Timer, Lock,
+  Timer,
 } from "lucide-react"
 import { useProjects } from "@/hooks/useProjects"
 import { useProjectContext } from "@/store/project-context"
@@ -27,12 +27,6 @@ const TEMPLATES = [
 ]
 
 // ── Filter options ────────────────────────────────────────────────────────
-
-const FILTER_OPTIONS = [
-  { value: "all", label: "All" },
-  { value: "software", label: "Software" },
-  { value: "service", label: "Service management" },
-]
 
 export default function SpacesPage() {
   const navigate = useNavigate()

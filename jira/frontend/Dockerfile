@@ -1,8 +1,9 @@
 # Stage 1: Build
 FROM node:22-alpine AS build
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 COPY . .
 RUN npm run build
 

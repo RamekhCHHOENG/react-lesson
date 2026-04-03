@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   AppWindow, Search, GitBranch, MessageSquare, BarChart3,
   Calendar, Clock, FileText, Zap, Shield, Globe, Palette,
-  Activity, Bot, Database, Cloud, ExternalLink,
+  Activity, Bot, Database, ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"

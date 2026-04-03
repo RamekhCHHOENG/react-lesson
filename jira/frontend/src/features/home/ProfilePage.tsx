@@ -9,25 +9,24 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
 import { getInitials, cn, timeAgo } from "@/lib/utils"
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
+import { TASK_STATUS_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
 import {
   User as UserIcon, Mail, Calendar, Shield, CheckSquare2,
   BarChart3, TrendingUp, Clock, Bug, BookOpen, Zap, GitBranch,
-  ArrowUp, ArrowDown, ArrowRight, ChevronsUp, Activity,
+  Activity,
 } from "lucide-react"
 import { toast } from "sonner"
 import type { Task } from "@/types"
 
-const ISSUE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ISSUE_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   bug: Bug, story: BookOpen, task: CheckSquare2, epic: Zap, subtask: GitBranch,
 }
 
 export default function ProfilePage() {
   const { user } = useAuth()
-  const { projects, isLoading } = useProjectContext()
+  const { projects } = useProjectContext()
 
   const myTasks = useMemo(() => {
     const name = user?.full_name ?? ""
