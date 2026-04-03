@@ -388,12 +388,12 @@ const BoardColumn = memo(function BoardColumn({ column, isMobile, showCreateInli
     <Droppable droppableId={column.key}>
       {(provided, snapshot) => (
         <div ref={provided.innerRef} {...provided.droppableProps}
-          className={cn("flex-shrink-0 rounded-lg bg-secondary/15 p-2 flex flex-col max-h-full border border-transparent transition-all duration-200", isMobile ? "w-64" : "w-72", snapshot.isDraggingOver && "bg-primary/5 border-primary/20 shadow-lg shadow-primary/5 scale-[1.01]")}>
+          className={cn("flex-shrink-0 rounded-lg bg-secondary/15 p-2 flex flex-col max-h-full border border-transparent transition-colors duration-200", isMobile ? "w-64" : "w-72", snapshot.isDraggingOver && "bg-primary/5 border-primary/20")}>
           <ColumnHeader title={column.title} count={column.tasks.length} status={column.key} />
           <div className="space-y-1.5 flex-1 min-h-0 scrollbar-thin overflow-y-auto px-0.5 py-1">
             {column.tasks.map((task, index) => (
               <Draggable key={task.id} draggableId={task.id} index={index}>
-                {(dp, ds) => (<div ref={dp.innerRef} {...dp.draggableProps} {...dp.dragHandleProps} onClick={() => onTaskClick(task)}><BoardCard task={task} isDragging={ds.isDragging} /></div>)}
+                {(dp, ds) => (<div ref={dp.innerRef} {...dp.draggableProps} {...dp.dragHandleProps} style={{ ...dp.draggableProps.style, ...(ds.isDragging ? { zIndex: 9999 } : {}) }} onClick={() => !ds.isDragging && onTaskClick(task)}><BoardCard task={task} isDragging={ds.isDragging} /></div>)}
               </Draggable>
             ))}
             {provided.placeholder}
@@ -449,7 +449,7 @@ const BoardCard = memo(function BoardCard({ task, isDragging }: { task: Task; is
   const initials = task.assignee ? task.assignee.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : null
 
   return (
-    <div className={cn("bg-background border border-border/40 rounded-lg p-3.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 cursor-pointer select-none group/card", isDragging && "shadow-2xl ring-2 ring-primary/20 -rotate-1 z-50 scale-105 border-primary/40 bg-card")}>
+    <div className={cn("bg-background border border-border/40 rounded-lg p-3.5 cursor-pointer select-none group/card", isDragging ? "shadow-xl ring-2 ring-primary/30 border-primary/40 bg-card rotate-[1deg]" : "shadow-sm hover:shadow-md hover:border-primary/40 transition-shadow transition-colors duration-200")}>
       {task.labels && task.labels.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {task.labels.slice(0, 3).map((label) => (<span key={label} className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary">{label}</span>))}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "@/store/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ProjectHubLogo } from "@/components/shared/ProjectHubLogo"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -45,11 +46,9 @@ export default function RegisterPage() {
     <div className="w-full max-w-md px-4">
       {/* Logo */}
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[3px] bg-primary text-primary-foreground">
-          <span className="text-2xl font-bold">J</span>
-        </div>
+        <ProjectHubLogo size={56} className="mx-auto mb-4" />
         <h1 className="text-2xl font-bold">Create an account</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Join your team on Jira</p>
+        <p className="mt-1 text-sm text-muted-foreground">Join your team on ProjectHub</p>
       </div>
 
       <Card>

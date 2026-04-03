@@ -1,66 +1,56 @@
 services:
   frontend:
-    image: node:22-alpine
-    working_dir: /app
-    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
-    environment:
-      VITE_API_PROXY_TARGET: http://api:8000
+    build:
+      context: ./frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
+      - "80:80"
     depends_on:
       - api
+    restart: unless-stopped
 
   api:
     build:
       context: ./backend
-    working_dir: /app
     environment:
-      APP_NAME: Jira Backend
-      APP_ENV: development
+      APP_NAME: ProjectHub API
+      APP_ENV: production
       API_V1_PREFIX: /api
-      SECRET_KEY: change-me-in-production
-      ACCESS_TOKEN_EXPIRE_MINUTES: 60
-      DATABASE_URL: postgresql+psycopg://jira:jira@postgres:5432/jira
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      DATABASE_URL: postgresql+psycopg://projecthub:${POSTGRES_PASSWORD:-projecthub}@postgres:5432/projecthub
       REDIS_URL: redis://redis:6379/0
-      CORS_ORIGINS: http://localhost:5173,http://localhost:5174
-      FIRST_SUPERUSER_EMAIL: admin@projecthub.com
-      FIRST_SUPERUSER_PASSWORD: admin123
-      FIRST_SUPERUSER_NAME: Admin User
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      FIRST_SUPERUSER_EMAIL: ${ADMIN_EMAIL:-admin@projecthub.com}
+      FIRST_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      FIRST_SUPERUSER_NAME: ${ADMIN_NAME:-Admin User}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
+    restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: jira
-      POSTGRES_USER: jira
-      POSTGRES_PASSWORD: jira
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: projecthub
+      POSTGRES_USER: projecthub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projecthub}
     volumes:
-      - jira_postgres_data:/var/lib/postgresql/data
+      - projecthub_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U jira -d jira"]
+      test: ["CMD-SHELL", "pg_isready -U projecthub -d projecthub"]
       interval: 5s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
-      - jira_redis_data:/data
+      - projecthub_redis_data:/data
+    restart: unless-stopped
 
 volumes:
-  jira_postgres_data:
-  jira_redis_data:
+  projecthub_postgres_data:
+  projecthub_redis_data:

@@ -1,4 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="80" fill="#1a1a2e"/>
-  <text x="256" y="340" font-family="Arial,sans-serif" font-size="320" font-weight="bold" fill="white" text-anchor="middle">J</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Board columns (3 columns with cards) -->
+  <!-- Column 1 - left -->
+  <rect x="80" y="120" width="100" height="280" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="92" y="140" width="76" height="36" rx="6" fill="rgba(255,255,255,0.9)"/>
+  <rect x="92" y="186" width="76" height="28" rx="6" fill="rgba(255,255,255,0.5)"/>
+  <rect x="92" y="224" width="76" height="28" rx="6" fill="rgba(255,255,255,0.5)"/>
+  <!-- Column 2 - center -->
+  <rect x="200" y="120" width="100" height="280" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="212" y="140" width="76" height="36" rx="6" fill="rgba(255,255,255,0.9)"/>
+  <rect x="212" y="186" width="76" height="28" rx="6" fill="rgba(255,255,255,0.5)"/>
+  <!-- Column 3 - right (the P shape) -->
+  <rect x="320" y="120" width="112" height="280" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <!-- P letter formed by cards in column 3 -->
+  <!-- Vertical bar of P -->
+  <rect x="332" y="140" width="28" height="240" rx="6" fill="white"/>
+  <!-- Top horizontal of P -->
+  <rect x="332" y="140" width="86" height="28" rx="6" fill="white"/>
+  <!-- Right curve of P (middle piece) -->
+  <rect x="390" y="140" width="28" height="108" rx="6" fill="white"/>
+  <!-- Middle horizontal of P -->
+  <rect x="332" y="220" width="86" height="28" rx="6" fill="white"/>
 </svg>

@@ -30,6 +30,7 @@ const EpicsPage = lazy(() => import("@/features/epics/EpicsPage"))
 const ReportsPage = lazy(() => import("@/features/reports/ReportsPage"))
 const ActivityFeedPage = lazy(() => import("@/features/activity/ActivityFeedPage"))
 const TeamPage = lazy(() => import("@/features/team/TeamPage"))
+const SpacesPage = lazy(() => import("@/features/spaces/SpacesPage"))
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
@@ -74,7 +75,7 @@ export const router = createBrowserRouter([
           { path: "/queues/all", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/queues/assigned", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/queues/open", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/spaces", element: <LazyPage><PlaceholderPage /></LazyPage> },
+          { path: "/spaces", element: <LazyPage><SpacesPage /></LazyPage> },
           { path: "/filters", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/dashboards", element: <LazyPage><PlaceholderPage /></LazyPage> },
           { path: "/operations", element: <LazyPage><PlaceholderPage /></LazyPage> },

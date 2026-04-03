@@ -23,7 +23,7 @@ export default function CodePage() {
             </div>
           </div>
 
-          <h2 className="text-[44px] font-semibold tracking-[-0.04em] text-white">Connect your code to Jira</h2>
+          <h2 className="text-[44px] font-semibold tracking-[-0.04em] text-white">Connect your code to ProjectHub</h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg leading-8 text-[#9fadbc]">
             Minimize context switching and gain visibility of your team’s pull requests and development workflow.
           </p>

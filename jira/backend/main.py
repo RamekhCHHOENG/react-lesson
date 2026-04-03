@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Jira Clone API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="ProjectHub API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -6,6 +6,7 @@ import {
 } from "lucide-react"
 import { JiraWorkspaceFrame } from "@/components/jira/JiraWorkspaceFrame"
 import { useProjectContext } from "@/store/project-context"
+import { useSprints } from "@/hooks/useSprints"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
@@ -42,6 +43,7 @@ export default function TimelinePage() {
   const { selectedProject, projects, isLoading } = useProjectContext()
   const project = selectedProject ?? projects[0] ?? null
   const isMobile = useMediaQuery("(max-width: 768px)")
+  const { data: sprints = [] } = useSprints(project?.id)
 
   // Persisted preferences
   const [zoom, setZoom] = useLocalStorage<ZoomLevel>("jira-timeline-zoom", "months")
@@ -152,7 +154,7 @@ export default function TimelinePage() {
           {/* Header Row */}
           <div className="flex border-b border-border/40 bg-secondary/20 text-[10px] font-black text-muted-foreground uppercase tracking-widest sticky top-0 z-20">
             <div className="w-72 shrink-0 p-3 border-r border-border/40 bg-card flex items-center justify-between">
-              <span>Issues</span>
+              <span>Work</span>
               <span className="text-[9px] font-medium normal-case tracking-normal text-muted-foreground/60">
                 {epics.length + orphanTasks.length} items
               </span>
@@ -169,6 +171,50 @@ export default function TimelinePage() {
               })}
             </div>
           </div>
+
+          {/* Sprint bars row */}
+          {sprints.length > 0 && (
+            <div className="flex border-b border-border/30 bg-secondary/5">
+              <div className="w-72 shrink-0 p-2.5 border-r border-border/40 bg-card text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Sprints
+              </div>
+              <div className="flex-1 relative h-8">
+                {sprints.filter((s) => s.start_date || s.status === "active").map((sprint) => {
+                  const startMonth = timelineMonths[0]
+                  const totalMonthSpan = timelineMonths.length
+                  const sprintStart = sprint.start_date ? new Date(sprint.start_date) : new Date()
+                  const sprintEnd = sprint.end_date ? new Date(sprint.end_date) : new Date(sprintStart.getTime() + 14 * 86400000)
+                  const rangeStart = new Date(startMonth.year, startMonth.month, 1)
+                  const rangeEnd = new Date(timelineMonths[totalMonthSpan - 1].year, timelineMonths[totalMonthSpan - 1].month + 1, 0)
+                  const totalDays = (rangeEnd.getTime() - rangeStart.getTime()) / 86400000
+                  const leftDays = Math.max(0, (sprintStart.getTime() - rangeStart.getTime()) / 86400000)
+                  const widthDays = Math.min(totalDays - leftDays, (sprintEnd.getTime() - sprintStart.getTime()) / 86400000)
+                  const leftPct = (leftDays / totalDays) * 100
+                  const widthPct = Math.max(3, (widthDays / totalDays) * 100)
+                  const isActive = sprint.status === "active"
+                  return (
+                    <Tooltip key={sprint.id}>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={cn(
+                            "absolute top-1/2 -translate-y-1/2 h-5 rounded-[3px] flex items-center px-2 text-[9px] font-bold text-white truncate cursor-pointer transition-all hover:brightness-110",
+                            isActive ? "bg-green-600 shadow-sm shadow-green-600/30" : "bg-teal-700/70 border border-teal-600/50",
+                          )}
+                          style={{ left: `${leftPct}%`, width: `${widthPct}%`, minWidth: "60px" }}
+                        >
+                          {sprint.name}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        <p className="font-bold">{sprint.name}</p>
+                        <p className="text-muted-foreground capitalize">{sprint.status}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
@@ -216,11 +262,25 @@ export default function TimelinePage() {
             )}
           </div>
 
-          {/* Footer legend */}
-          <div className="p-3 border-t border-border/40 bg-secondary/10 flex items-center gap-6 text-[10px] font-bold text-muted-foreground uppercase z-10">
-            <div className="flex items-center gap-2"><div className="h-3 w-8 rounded-full bg-gradient-to-r from-purple-500 to-purple-600" /> Epic</div>
-            <div className="flex items-center gap-2"><div className="h-3 w-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600" /> Task / Story</div>
-            <div className="flex items-center gap-2"><div className="h-3 w-3 rounded-full bg-red-500" /> Today</div>
+          {/* Footer legend + zoom */}
+          <div className="p-3 border-t border-border/40 bg-secondary/10 flex items-center justify-between z-10">
+            <div className="flex items-center gap-6 text-[10px] font-bold text-muted-foreground uppercase">
+              <div className="flex items-center gap-2"><div className="h-3 w-8 rounded-full bg-gradient-to-r from-purple-500 to-purple-600" /> Epic</div>
+              <div className="flex items-center gap-2"><div className="h-3 w-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600" /> Task / Story</div>
+              <div className="flex items-center gap-2"><div className="h-3 w-3 rounded-full bg-red-500" /> Today</div>
+            </div>
+            <div className="flex items-center gap-1 border border-border rounded-md p-0.5 bg-background">
+              <Button variant="ghost" size="sm" className="h-7 text-[11px] font-bold px-3" onClick={() => setCurrentOffset(0)}>Today</Button>
+              {ZOOM_LEVELS.map((level) => (
+                <Button
+                  key={level}
+                  variant={zoom === level ? "outline" : "ghost"}
+                  size="sm"
+                  className={cn("h-7 text-[11px] font-bold px-3 capitalize", zoom === level && "bg-primary/10 text-primary border-primary/30")}
+                  onClick={() => setZoom(level)}
+                >{level}</Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

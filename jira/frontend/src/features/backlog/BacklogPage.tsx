@@ -15,13 +15,15 @@ import {
 import { JiraWorkspaceFrame } from "@/components/jira/JiraWorkspaceFrame"
 import { useProjectContext } from "@/store/project-context"
 import { useCreateTask, useUpdateTask } from "@/hooks/useTasks"
-import { useSprints, useCreateSprint, useStartSprint, useCompleteSprint } from "@/hooks/useSprints"
+import { useSprints, useCreateSprint, useStartSprint, useCompleteSprint, useUpdateSprint } from "@/hooks/useSprints"
 import { cn } from "@/lib/utils"
 import { TASK_STATUS_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
+import { StartSprintDialog } from "./components/StartSprintDialog"
+import { CompleteSprintDialog } from "./components/CompleteSprintDialog"
 import type { Task, TaskStatus, Sprint } from "@/types"
 
 export default function BacklogPage() {
@@ -33,10 +35,13 @@ export default function BacklogPage() {
   const createSprint = useCreateSprint()
   const startSprint = useStartSprint()
   const completeSprint = useCompleteSprint()
+  const updateSprint = useUpdateSprint()
   const [query, setQuery] = useState("")
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [showCreateInline, setShowCreateInline] = useState<string | null>(null)
   const [inlineTitle, setInlineTitle] = useState("")
+  const [startDialogSprint, setStartDialogSprint] = useState<Sprint | null>(null)
+  const [completeDialogSprint, setCompleteDialogSprint] = useState<Sprint | null>(null)
 
   // All tasks from the project
   const allTasks = useMemo(() => {
@@ -86,14 +91,30 @@ export default function BacklogPage() {
     })
   }
 
-  const handleStartSprint = (sprintId: string) => {
-    if (!project) return
-    startSprint.mutate({ projectId: project.id, sprintId })
+  const handleStartSprint = (sprint: Sprint) => {
+    setStartDialogSprint(sprint)
   }
 
-  const handleCompleteSprint = (sprintId: string) => {
-    if (!project) return
-    completeSprint.mutate({ projectId: project.id, sprintId })
+  const handleConfirmStartSprint = (data: { name: string; start_date: string; end_date: string; goal: string }) => {
+    if (!project || !startDialogSprint) return
+    // Update sprint with form data, then start it
+    updateSprint.mutate({
+      projectId: project.id,
+      sprintId: startDialogSprint.id,
+      data: { name: data.name, goal: data.goal, start_date: data.start_date, end_date: data.end_date },
+    })
+    startSprint.mutate({ projectId: project.id, sprintId: startDialogSprint.id })
+    setStartDialogSprint(null)
+  }
+
+  const handleCompleteSprint = (sprint: Sprint) => {
+    setCompleteDialogSprint(sprint)
+  }
+
+  const handleConfirmCompleteSprint = (_moveToSprintId: string | null) => {
+    if (!project || !completeDialogSprint) return
+    completeSprint.mutate({ projectId: project.id, sprintId: completeDialogSprint.id })
+    setCompleteDialogSprint(null)
   }
 
   // Sort sprints: active first, then planning, then completed
@@ -118,6 +139,7 @@ export default function BacklogPage() {
   }
 
   return (
+    <>
     <JiraWorkspaceFrame tab="backlog">
       <div className="space-y-6 pb-20">
         {/* Backlog Header */}
@@ -173,8 +195,8 @@ export default function BacklogPage() {
                 onToggle={() => toggleSection(sprint.id)}
                 tasks={tasks}
                 onToggleStatus={handleToggleStatus}
-                onStartSprint={() => handleStartSprint(sprint.id)}
-                onCompleteSprint={() => handleCompleteSprint(sprint.id)}
+                onStartSprint={() => handleStartSprint(sprint)}
+                onCompleteSprint={() => handleCompleteSprint(sprint)}
                 showCreate={showCreateInline === sprint.id}
                 onShowCreate={() => setShowCreateInline(sprint.id)}
                 onCancelCreate={() => setShowCreateInline(null)}
@@ -202,6 +224,29 @@ export default function BacklogPage() {
         </div>
       </div>
     </JiraWorkspaceFrame>
+
+    {/* Sprint Dialogs */}
+    {startDialogSprint && (
+      <StartSprintDialog
+        open={!!startDialogSprint}
+        onOpenChange={(open) => !open && setStartDialogSprint(null)}
+        sprint={startDialogSprint}
+        taskCount={getSprintTasks(startDialogSprint.id).length}
+        onStart={handleConfirmStartSprint}
+      />
+    )}
+    {completeDialogSprint && (
+      <CompleteSprintDialog
+        open={!!completeDialogSprint}
+        onOpenChange={(open) => !open && setCompleteDialogSprint(null)}
+        sprint={completeDialogSprint}
+        completedCount={getSprintTasks(completeDialogSprint.id).filter((t) => t.status === "done").length}
+        openCount={getSprintTasks(completeDialogSprint.id).filter((t) => t.status !== "done").length}
+        otherSprints={sprints.filter((s) => s.id !== completeDialogSprint.id && s.status !== "completed")}
+        onComplete={handleConfirmCompleteSprint}
+      />
+    )}
+    </>
   )
 }
 

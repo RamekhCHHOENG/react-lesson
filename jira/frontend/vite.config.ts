@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "Jira Clone",
-        short_name: "Jira",
+        name: "ProjectHub",
+        short_name: "ProjectHub",
         description: "Project management tool",
         theme_color: "#1a1a2e",
         background_color: "#0a0a0a",

@@ -10,14 +10,19 @@ import {
   Bug,
   BookOpen,
   GitBranch,
-  TrendingUp
+  TrendingUp,
+  ChevronsUp,
+  ArrowUp,
+  ArrowRight,
+  ArrowDown,
+  Users,
 } from "lucide-react"
 import { JiraWorkspaceFrame } from "@/components/jira/JiraWorkspaceFrame"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useProjectContext } from "@/store/project-context"
 import { cn, timeAgo } from "@/lib/utils"
-import { Doughnut } from "react-chartjs-2"
+import { Doughnut, Bar } from "react-chartjs-2"
 import {
   Chart as ChartJS,
   ArcElement,
@@ -29,6 +34,9 @@ import {
   Title,
 } from "chart.js"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ISSUE_TYPE_CONFIG } from "@/config"
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
 
@@ -88,6 +96,55 @@ export default function SummaryPage() {
     },
     maintainAspectRatio: false,
   }
+
+  // Priority breakdown data for bar chart
+  const priorityData = useMemo(() => {
+    if (!project) return null
+    const tasks = project.tasks
+    const urgent = tasks.filter((t) => t.priority === "urgent").length
+    const high = tasks.filter((t) => t.priority === "high").length
+    const medium = tasks.filter((t) => t.priority === "medium").length
+    const low = tasks.filter((t) => t.priority === "low").length
+    return {
+      labels: ["Highest", "High", "Medium", "Low", "Lowest"],
+      datasets: [{
+        data: [urgent, high, medium, low, 0],
+        backgroundColor: ["#FF5630", "#FF7452", "#FFAB00", "#36B37E", "#6554C0"],
+        borderWidth: 0,
+        borderRadius: 3,
+      }],
+    }
+  }, [project])
+
+  // Types of work distribution
+  const typesOfWork = useMemo(() => {
+    if (!project) return []
+    const tasks = project.tasks
+    const total = tasks.length || 1
+    const types = [
+      { type: "task", label: "Task", count: tasks.filter((t) => t.issue_type === "task").length },
+      { type: "epic", label: "Epic", count: tasks.filter((t) => t.issue_type === "epic").length },
+      { type: "story", label: "Story", count: tasks.filter((t) => t.issue_type === "story").length },
+      { type: "bug", label: "Bug", count: tasks.filter((t) => t.issue_type === "bug").length },
+      { type: "subtask", label: "Subtask", count: tasks.filter((t) => t.issue_type === "subtask").length },
+    ].filter((t) => t.count > 0)
+    return types.map((t) => ({ ...t, percentage: Math.round((t.count / total) * 100) }))
+  }, [project])
+
+  // Team workload
+  const teamWorkload = useMemo(() => {
+    if (!project) return []
+    const tasks = project.tasks
+    const assigneeMap = new Map<string, number>()
+    tasks.forEach((t) => {
+      const key = t.assignee || "Unassigned"
+      assigneeMap.set(key, (assigneeMap.get(key) || 0) + 1)
+    })
+    const total = tasks.length || 1
+    return Array.from(assigneeMap.entries()).map(([name, count]) => ({
+      name, count, percentage: Math.round((count / total) * 100),
+    }))
+  }, [project])
 
   if (isLoading) {
     return (
@@ -189,6 +246,127 @@ export default function SummaryPage() {
                       <p className="text-sm text-muted-foreground">No recent activity to show.</p>
                    </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Row 2: Priority Breakdown + Types of Work */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="jira-panel">
+            <CardHeader className="pb-2 border-none">
+              <CardTitle className="text-base font-bold text-foreground">Priority breakdown</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Get a holistic view of how work is being prioritized.{" "}
+                <span className="text-primary cursor-pointer hover:underline">How to manage priorities for spaces</span>
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {priorityData && (
+                <div className="h-[200px]">
+                  <Bar
+                    data={priorityData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: { stepSize: 1, color: "hsl(var(--muted-foreground))", font: { size: 11 } },
+                          grid: { color: "hsl(var(--border) / 0.3)" },
+                        },
+                        x: {
+                          ticks: { color: "hsl(var(--muted-foreground))", font: { size: 11 } },
+                          grid: { display: false },
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="jira-panel">
+            <CardHeader className="pb-2 border-none">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-bold text-foreground">Types of work</CardTitle>
+                <span className="text-sm text-primary cursor-pointer hover:underline">View all items</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Get a breakdown of work items by their types.</p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="space-y-0">
+                {/* Table header */}
+                <div className="grid grid-cols-[1fr_100px_1fr] items-center py-2 text-[11px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border/30">
+                  <span>Type</span>
+                  <span className="text-right">Distribution</span>
+                  <span />
+                </div>
+                {typesOfWork.map((tw) => {
+                  const cfg = ISSUE_TYPE_CONFIG[tw.type as keyof typeof ISSUE_TYPE_CONFIG]
+                  const TypeIcon = tw.type === "bug" ? Bug : tw.type === "story" ? BookOpen : tw.type === "epic" ? Zap : tw.type === "subtask" ? GitBranch : CheckSquare
+                  return (
+                    <div key={tw.type} className="grid grid-cols-[1fr_100px_1fr] items-center py-3 border-b border-border/10 hover:bg-secondary/20 transition-colors">
+                      <div className="flex items-center gap-2.5">
+                        <TypeIcon className="h-4 w-4" style={{ color: cfg?.hex }} />
+                        <span className="text-sm font-medium text-foreground">{tw.label}</span>
+                      </div>
+                      <span className="text-sm font-bold text-right text-muted-foreground">{tw.percentage}%</span>
+                      <div className="ml-4">
+                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${tw.percentage}%`, backgroundColor: cfg?.hex || "#0052CC" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Row 3: Team Workload */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="jira-panel">
+            <CardHeader className="pb-2 border-none">
+              <CardTitle className="text-base font-bold text-foreground">Team workload</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Monitor the capacity of your team.{" "}
+                <span className="text-primary cursor-pointer hover:underline">Reassign work items to get the right balance</span>
+              </p>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="space-y-0">
+                <div className="grid grid-cols-[1fr_1fr] items-center py-2 text-[11px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border/30">
+                  <span>Assignee</span>
+                  <span>Work distribution</span>
+                </div>
+                {teamWorkload.map((tw) => (
+                  <div key={tw.name} className="grid grid-cols-[1fr_1fr] items-center py-3 border-b border-border/10 hover:bg-secondary/20 transition-colors">
+                    <div className="flex items-center gap-2.5">
+                      {tw.name === "Unassigned" ? (
+                        <div className="h-6 w-6 rounded-full bg-secondary/60 flex items-center justify-center">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                      ) : (
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="bg-blue-600 text-[8px] font-bold text-white">
+                            {tw.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className="text-sm font-medium text-foreground">{tw.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-muted-foreground min-w-[40px]">{tw.percentage}%</span>
+                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${tw.percentage}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
