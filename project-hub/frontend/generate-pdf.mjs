@@ -79,6 +79,14 @@ const outputPath = path.join(__dirname, 'presentation.pdf');
     margin: { top: 0, right: 0, bottom: 0, left: 0 },
     timeout: 120000,
   });
+await page.pdf({
+    path: outputPath,
+    width: '1920px',
+    height: '1080px',
+    printBackground: true,
+    margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    timeout: 120000,
+  });
 
   const size = fs.statSync(outputPath).size;
   console.log(`PDF saved: ${outputPath} (${(size / 1024 / 1024).toFixed(1)} MB)`);
