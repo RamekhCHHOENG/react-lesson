@@ -17,7 +17,7 @@ services:
       API_V1_PREFIX: /api
       SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
-      DATABASE_URL: postgresql+psycopg://projecthub:${POSTGRES_PASSWORD:-projecthub}@postgres:5432/projecthub
+      DATABASE_URL: postgresql+asyncpg://projecthub:${POSTGRES_PASSWORD:-projecthub}@postgres:5432/projecthub
       REDIS_URL: redis://redis:6379/0
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
       FIRST_SUPERUSER_EMAIL: ${ADMIN_EMAIL:-admin@projecthub.com}
