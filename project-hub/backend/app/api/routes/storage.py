@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.database import get_db
 from app.models import Project, Task, User
 from app.schemas.project import dump_projects, serialize_project
-from app.services.seed import seed_demo_projects
+from app.services.seed import seed_initial_data
 
 
 router = APIRouter(prefix="/storage", tags=["storage"])
@@ -49,9 +49,7 @@ def clear_storage(db: Session = Depends(get_db)) -> dict:
 
 @router.post("/reseed")
 def reseed_storage(db: Session = Depends(get_db)) -> dict:
-    owner = db.scalar(select(User).where(User.is_superuser.is_(True)).limit(1))
-    if owner is not None:
-        seed_demo_projects(db, owner=owner, force=True)
+    seed_initial_data(db, force=True)
     return {
         "data": None,
         "success": True,

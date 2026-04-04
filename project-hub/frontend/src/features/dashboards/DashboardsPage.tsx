@@ -2,11 +2,10 @@ import { useMemo, useState } from "react"
 import { useProjects } from "@/hooks/useProjects"
 import { useAllTasks } from "@/hooks/useTasks"
 import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from "@/config"
-import type { Task, TaskStatus, TaskPriority } from "@/types"
+import type { TaskStatus, TaskPriority } from "@/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -21,8 +20,6 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
-  Users,
-  FolderKanban,
 } from "lucide-react"
 import {
   ResponsiveContainer,

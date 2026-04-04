@@ -46,7 +46,7 @@ interface SavedFilter {
 export default function FiltersPage() {
   const { data: allTasks, isLoading: tasksLoading } = useAllTasks()
   const { data: projects } = useProjects()
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
 
   const [savedFilters, setSavedFilters] = useLocalStorage<SavedFilter[]>("projecthub-saved-filters", [
     { id: "1", name: "My Open Tasks", status: "todo", priority: "all", type: "all", project: "all", starred: true },

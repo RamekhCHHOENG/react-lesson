@@ -1,19 +1,11 @@
 import { useMemo, useState } from "react"
 import { useProjects } from "@/hooks/useProjects"
 import { useAllTasks } from "@/hooks/useTasks"
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from "@/config"
-import type { Task, TaskStatus, TaskPriority } from "@/types"
+import type { Task } from "@/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
   Sparkles,

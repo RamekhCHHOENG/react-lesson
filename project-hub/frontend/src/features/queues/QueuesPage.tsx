@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useAllTasks } from "@/hooks/useTasks"
 import { useAuth } from "@/store/auth"
 import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, ISSUE_TYPE_CONFIG } from "@/config"
-import type { Task, TaskStatus, TaskPriority } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
@@ -68,7 +67,7 @@ export default function QueuesPage() {
 
     // Filter by tab
     if (currentTab === "assigned") {
-      tasks = tasks.filter((t) => t.assignee === user?.username || t.assignee === user?.email)
+      tasks = tasks.filter((t) => t.assignee === user?.full_name || t.assignee === user?.email)
     } else if (currentTab === "open") {
       tasks = tasks.filter((t) => t.status !== "done")
     } else {

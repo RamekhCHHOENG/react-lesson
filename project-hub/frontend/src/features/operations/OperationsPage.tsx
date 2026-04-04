@@ -2,8 +2,6 @@ import { useMemo } from "react"
 import { useAllTasks } from "@/hooks/useTasks"
 import { useProjects } from "@/hooks/useProjects"
 import { useActivities } from "@/hooks/useActivities"
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from "@/config"
-import type { TaskStatus, TaskPriority } from "@/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -11,7 +9,6 @@ import { Progress } from "@/components/ui/progress"
 import {
   Activity,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   Gauge,
   TrendingUp,
@@ -72,7 +69,7 @@ export default function OperationsPage() {
   const recentActivities = useMemo(() => {
     if (!activities) return []
     return [...activities]
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 12)
   }, [activities])
 
@@ -261,7 +258,7 @@ export default function OperationsPage() {
                         {act.entity_type}: {act.entity_id}
                       </span>
                       <span className="text-xs text-muted-foreground shrink-0">
-                        {timeAgo(act.timestamp)}
+                        {timeAgo(act.created_at)}
                       </span>
                     </div>
                   ))}
