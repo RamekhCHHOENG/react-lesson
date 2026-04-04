@@ -4,9 +4,8 @@
 
 const TOKEN_KEY = "jira_token";
 
-const API_BASE_URL =
-  (import.meta as unknown as { env?: { VITE_API_BASE_URL?: string } }).env
-    ?.VITE_API_BASE_URL ?? "";
+// Empty string = relative URL; nginx proxies /api/ to the backend container
+const API_BASE_URL = "";
 
 export class ApiRequestError extends Error {
   status: number;
