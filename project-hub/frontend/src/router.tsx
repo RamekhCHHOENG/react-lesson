@@ -31,6 +31,13 @@ const ReportsPage = lazy(() => import("@/features/reports/ReportsPage"))
 const ActivityFeedPage = lazy(() => import("@/features/activity/ActivityFeedPage"))
 const TeamPage = lazy(() => import("@/features/team/TeamPage"))
 const SpacesPage = lazy(() => import("@/features/spaces/SpacesPage"))
+const SettingsPage = lazy(() => import("@/features/settings/SettingsPage"))
+const PlansPage = lazy(() => import("@/features/plans/PlansPage"))
+const QueuesPage = lazy(() => import("@/features/queues/QueuesPage"))
+const FiltersPage = lazy(() => import("@/features/filters/FiltersPage"))
+const DashboardsPage = lazy(() => import("@/features/dashboards/DashboardsPage"))
+const OperationsPage = lazy(() => import("@/features/operations/OperationsPage"))
+const CustomizePage = lazy(() => import("@/features/customize/CustomizePage"))
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
@@ -70,18 +77,17 @@ export const router = createBrowserRouter([
           { path: "/recent", element: <LazyPage><RecentPage /></LazyPage> },
           { path: "/starred", element: <LazyPage><StarredPage /></LazyPage> },
           { path: "/apps", element: <LazyPage><AppsPage /></LazyPage> },
-          { path: "/plans", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/queues", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/queues/all", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/queues/assigned", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/queues/open", element: <LazyPage><PlaceholderPage /></LazyPage> },
+          { path: "/plans", element: <LazyPage><PlansPage /></LazyPage> },
+          { path: "/queues", element: <LazyPage><QueuesPage /></LazyPage> },
+          { path: "/queues/all", element: <LazyPage><QueuesPage /></LazyPage> },
+          { path: "/queues/assigned", element: <LazyPage><QueuesPage /></LazyPage> },
+          { path: "/queues/open", element: <LazyPage><QueuesPage /></LazyPage> },
           { path: "/spaces", element: <LazyPage><SpacesPage /></LazyPage> },
-          { path: "/filters", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/dashboards", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/operations", element: <LazyPage><PlaceholderPage /></LazyPage> },
+          { path: "/filters", element: <LazyPage><FiltersPage /></LazyPage> },
+          { path: "/dashboards", element: <LazyPage><DashboardsPage /></LazyPage> },
+          { path: "/operations", element: <LazyPage><OperationsPage /></LazyPage> },
           { path: "/confluence", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/teams", element: <LazyPage><PlaceholderPage /></LazyPage> },
-          { path: "/customize", element: <LazyPage><PlaceholderPage /></LazyPage> },
+          { path: "/customize", element: <LazyPage><CustomizePage /></LazyPage> },
 
           // Legacy Redirects
           { path: "/projects", element: <LazyPage><ProjectsPage /></LazyPage> },
@@ -92,7 +98,7 @@ export const router = createBrowserRouter([
           { path: "/teams", element: <LazyPage><TeamPage /></LazyPage> },
           { path: "/reports", element: <LazyPage><ReportsPage /></LazyPage> },
           { path: "/activity", element: <LazyPage><ActivityFeedPage /></LazyPage> },
-          { path: "/settings", element: <Navigate to="/forms" replace /> },
+          { path: "/settings", element: <LazyPage><SettingsPage /></LazyPage> },
           { path: "/notifications", element: <LazyPage><NotificationsPage /></LazyPage> },
           { path: "/epics", element: <LazyPage><EpicsPage /></LazyPage> },
           { path: "/profile", element: <LazyPage><ProfilePage /></LazyPage> },

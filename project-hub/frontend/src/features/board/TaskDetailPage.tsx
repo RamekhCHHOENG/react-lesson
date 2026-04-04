@@ -34,6 +34,7 @@ import { formatDate, timeAgo, getInitials, isOverdue } from "@/lib/utils"
 import { CommentsList } from "@/features/board/components/CommentsList"
 import { SubtasksList } from "@/features/board/components/SubtasksList"
 import { LinkedIssues } from "@/features/board/components/LinkedIssues"
+import { AttachmentsList } from "@/features/board/components/AttachmentsList"
 import { ActivityTimeline } from "@/components/shared/ActivityTimeline"
 import type { TaskStatus, TaskPriority } from "@/types"
 
@@ -147,6 +148,7 @@ export default function TaskDetailPage() {
             <TabsList>
               <TabsTrigger value="comments">Comments</TabsTrigger>
               <TabsTrigger value="subtasks">Subtasks</TabsTrigger>
+              <TabsTrigger value="attachments">Attachments</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
             </TabsList>
             <TabsContent value="comments" className="mt-4">
@@ -163,6 +165,16 @@ export default function TaskDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <SubtasksList projectId={project.id} taskId={task.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="attachments" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Attachments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AttachmentsList taskId={task.id} />
                 </CardContent>
               </Card>
             </TabsContent>

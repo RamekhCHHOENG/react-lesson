@@ -10,9 +10,10 @@ from app.models.member import ProjectMember
 from app.models.label import Label
 from app.models.notification import Notification
 from app.models.activity import Activity, ActivityLog
+from app.models.attachment import Attachment
 
 __all__ = [
     "Base", "User", "Project", "Task", "task_labels", "TaskLink",
     "Sprint", "Epic", "Comment", "ProjectMember", "Label",
-    "Notification", "Activity", "ActivityLog",
+    "Notification", "Activity", "ActivityLog", "Attachment",
 ]

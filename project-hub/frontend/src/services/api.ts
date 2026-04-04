@@ -108,6 +108,22 @@ class ApiClient {
     }
     return undefined as unknown as T;
   }
+
+  async upload<T>(path: string, file: File): Promise<T> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const headers: Record<string, string> = {};
+    const token = ApiClient.getStoredToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    return this.handleResponse<T>(response);
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

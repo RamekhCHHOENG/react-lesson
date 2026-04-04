@@ -169,13 +169,11 @@ function DashboardLayoutInner() {
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
 
-      {project && (
-        <TaskFormDrawer
-          open={createTaskOpen}
-          onOpenChange={setCreateTaskOpen}
-          projectId={project.id}
-        />
-      )}
+      <TaskFormDrawer
+        open={createTaskOpen}
+        onOpenChange={setCreateTaskOpen}
+        projectId={project?.id}
+      />
     </div>
   )
 }

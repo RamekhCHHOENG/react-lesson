@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Sheet,
   SheetContent,
@@ -20,6 +20,8 @@ import {
 import { Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCreateTask, useUpdateTask } from "@/hooks/useTasks"
+import { useProjects } from "@/hooks/useProjects"
+import { useEpics } from "@/hooks/useEpics"
 import {
   TASK_STATUS_CONFIG,
   TASK_PRIORITY_CONFIG,
@@ -36,7 +38,7 @@ import type {
 interface TaskFormDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  projectId: string
+  projectId?: string
   task?: Task
   onSuccess?: () => void
 }
@@ -52,16 +54,27 @@ const defaultFormData: TaskFormData = {
 export default function TaskFormDrawer({
   open,
   onOpenChange,
-  projectId,
+  projectId: propProjectId,
   task,
   onSuccess,
 }: TaskFormDrawerProps) {
   const isEditing = !!task
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
+  const { data: projects = [] } = useProjects()
+
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(propProjectId ?? "")
+  const activeProjectId = isEditing ? (propProjectId ?? "") : selectedProjectId
+
+  const { data: epics = [] } = useEpics(activeProjectId || undefined)
 
   const [formData, setFormData] = useState<TaskFormData>(defaultFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const selectedProject = useMemo(
+    () => projects.find((p) => p.id === activeProjectId),
+    [projects, activeProjectId]
+  )
 
   useEffect(() => {
     if (open) {
@@ -77,18 +90,23 @@ export default function TaskFormDrawer({
           due_date: task.due_date ? task.due_date.split("T")[0] : undefined,
           story_points: task.story_points ?? undefined,
           labels: task.labels,
+          epic_id: task.epic_id ?? undefined,
         })
       } else {
         setFormData(defaultFormData)
       }
+      setSelectedProjectId(propProjectId ?? "")
       setErrors({})
     }
-  }, [open, task])
+  }, [open, task, propProjectId])
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
     if (!formData.title.trim()) {
       newErrors.title = "Summary is required"
+    }
+    if (!activeProjectId) {
+      newErrors.project = "Project is required"
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -104,17 +122,18 @@ export default function TaskFormDrawer({
       reporter: formData.reporter || undefined,
       due_date: formData.due_date || undefined,
       story_points: formData.story_points ?? undefined,
+      epic_id: formData.epic_id || undefined,
     }
 
     try {
       if (isEditing && task) {
         await updateTask.mutateAsync({
-          projectId,
+          projectId: activeProjectId,
           taskId: task.id,
           data: payload,
         })
       } else {
-        await createTask.mutateAsync({ projectId, data: payload })
+        await createTask.mutateAsync({ projectId: activeProjectId, data: payload })
       }
       onOpenChange(false)
       onSuccess?.()
@@ -147,10 +166,37 @@ export default function TaskFormDrawer({
             {/* Project & Type */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Project</Label>
-                <div className="h-10 px-3 flex items-center rounded-[3px] border border-border bg-muted/30 text-sm font-medium">
-                   Software Project (MKT)
-                </div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Project <span className="text-destructive">*</span>
+                </Label>
+                {isEditing ? (
+                  <div className="h-10 px-3 flex items-center rounded-[3px] border border-border bg-muted/30 text-sm font-medium">
+                    {selectedProject ? `${selectedProject.name} (${selectedProject.key})` : "Unknown"}
+                  </div>
+                ) : (
+                  <Select
+                    value={selectedProjectId}
+                    onValueChange={(value) => {
+                      setSelectedProjectId(value)
+                      setFormData((prev) => ({ ...prev, epic_id: undefined }))
+                    }}
+                  >
+                    <SelectTrigger className={cn("h-10 rounded-[3px] border-border bg-input transition-all hover:bg-secondary/50 focus:ring-primary", errors.project && "border-destructive")}>
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id} className="focus:bg-secondary">
+                          <span className="font-medium">{p.name}</span>
+                          <span className="ml-1.5 text-muted-foreground">({p.key})</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.project && (
+                  <p className="text-xs font-medium text-destructive mt-1">{errors.project}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Issue Type</Label>
@@ -265,6 +311,31 @@ export default function TaskFormDrawer({
                 </Select>
               </div>
             </div>
+
+            {/* Epic (Parent) */}
+            {activeProjectId && (
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Epic</Label>
+                <Select
+                  value={formData.epic_id ?? "none"}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, epic_id: value === "none" ? undefined : value }))
+                  }
+                >
+                  <SelectTrigger className="h-10 rounded-[3px] border-border bg-input transition-all hover:bg-secondary/50 focus:ring-primary">
+                    <SelectValue placeholder="No epic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No epic</SelectItem>
+                    {epics.map((epic) => (
+                      <SelectItem key={epic.id} value={epic.id} className="focus:bg-secondary">
+                        <span className="font-medium">{epic.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Assignee */}
             <div className="space-y-2">

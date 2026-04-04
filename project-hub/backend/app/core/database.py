@@ -6,11 +6,13 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 from app.models import Base
 
+# Derive sync URL from potentially async DATABASE_URL
+_sync_url = settings.DATABASE_URL.replace("+aiosqlite", "").replace("+asyncpg", "+psycopg2")
 
-_is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+_is_sqlite = _sync_url.startswith("sqlite")
 _connect_args = {"check_same_thread": False} if _is_sqlite else {}
 
-engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True, connect_args=_connect_args)
+engine = create_engine(_sync_url, pool_pre_ping=True, connect_args=_connect_args)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
