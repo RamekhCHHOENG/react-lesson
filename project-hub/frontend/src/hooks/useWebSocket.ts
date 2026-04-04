@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
-const WS_BASE = import.meta.env.VITE_WS_URL ?? `ws://${window.location.hostname}:8000`
+// Use wss:// on HTTPS, ws:// on HTTP; same origin so nginx proxies /api/ws
+const WS_BASE = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}`
 const MAX_RETRIES = 10
 const BASE_DELAY = 1000
 
